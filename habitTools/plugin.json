@@ -1,0 +1,15 @@
+{
+	"pluginName": "habitica",
+	"description": "一个习惯养成及生产力应用（uTools插件）",
+	"main": "index.html",
+    "version": "0.0.1",
+    "author": "Zohn",
+    "logo": "image/logo.jpeg",
+	"features": [
+		{
+		    "code": "hello",
+		    "explain": "打开habitica插件",
+            "cmds":["habit", "habitica"]
+		}
+	]
+}
