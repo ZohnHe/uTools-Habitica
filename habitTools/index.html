@@ -1,106 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
-    <style>
-      html,body,#app,.el-container {
-        padding: 0;
-        margin: 0;
-        height: 100%;
-      }
-      .el-header {
-        background-color: #432874;
-        color: #333;
-        line-height: 60px;
-      }
-
-      /*左侧*/
-      .el-aside {
-        background-color: rgb(238, 241, 246);
-      }
-      #habitica_title{
-        text-align: center;
-        font-size: 12px;
-        background-color: rgb(238, 241, 246);
-      }
-      .el-menu {
-        border-right: none;
-      }
-      .el-menu-item.is-active {
-        color: #432874;
-      }
-      .el-link.el-link--default {
-        color: #432874;
-      }
-
-      /*右侧*/
-      #content{
-        border: 1px solid #432874;
-        border-radius: 5px;
-      }
-      .el-row {
-        height: 100%;
-      }
-
-    </style>
-    <title>habitTools</title>
-  </head>
-  <body>
+    <head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+        <title>HabitTools</title>
+        <style type="text/css">
+            html,body,#app {
+                width: 100%;
+                height: 100%;
+                padding: 0;
+                margin: 0;
+            }
+            #start_image {
+                width: 100px;
+                height: 100px;
+                margin: 0 auto;
+                position: relative;
+                top: 33%;
+            }
+            .fade-enter-active, .fade-leave-active {
+                transition: opacity 1s;
+            }
+            .fade-enter, .fade-leave-to {
+                opacity: 0;
+            }
+        </style>
+    </head>
+    <body>
     <div id="app">
-      <el-container>
-        <el-aside width="200px">
-          <el-header id="habitica_title">
-            <el-link href="https://element.eleme.io" target="_blank">小头像+昵称</el-link>
-          </el-header>
-          <el-menu default-active="1">
-            <el-menu-item index="1">
-              <i class="el-icon-time"></i>
-              <span slot="title">习惯</span>
-            </el-menu-item>
-            <el-menu-item index="2">
-              <i class="el-icon-sunrise-1"></i>
-              <span slot="title">每日任务</span>
-            </el-menu-item>
-            <el-menu-item index="3">
-              <i class="el-icon-notebook-2"></i>
-              <span slot="title">待办事项</span>
-            </el-menu-item>
-          </el-menu>
-        </el-aside>
-
-        <el-container id="content">
-          <el-header>
-            <el-row :gutter="28" type="flex" align="middle">
-              <el-col :span="8">
-                <el-progress :text-inside="true" :stroke-width="23" :percentage="50" status="exception"></el-progress>
-              </el-col>
-              <el-col :span="8">
-                <el-progress :text-inside="true" :stroke-width="23" :percentage="80" status="warning"></el-progress>
-              </el-col>
-              <el-col :span="8">
-                <el-progress :text-inside="true" :stroke-width="23" :percentage="70"></el-progress>
-              </el-col>
-            </el-row>
-          </el-header>
-          <el-main>
-            <el-radio v-model="radio" label="1">任务1</el-radio>
-            <el-divider></el-divider>
-            <el-radio v-model="radio" label="2">任务2</el-radio>
-          </el-main>
-          <el-footer><el-input placeholder = "添加一个任务"></el-input></el-footer>
-        </el-container>
-      </el-container>
+        <transition name="fade">
+            <div id="start_image" v-show="showImg">
+                <el-image src="./src/images/habitica.png" fit="contain"></el-image>
+            </div>
+        </transition>
     </div>
-  </body>
 
-  <script>
-    </script>
-    <script src="js/vue.js"></script>
+    </body>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/element-ui@2.13.2/lib/index.js"></script>
-  <script>
-    new Vue({
-      el: '#app'
-    })
-  </script>
+    <script>
+        var state = true;
+        new Vue({
+            el: '#app',
+            data: {
+                showImg: false
+            },
+            mounted() {
+                this.timer = setInterval(() => {
+                    this.showImg = state;
+                    state = !state;
+                }, 1200);
+            },
+            destroyed() {
+                clearInterval(this.timer);
+            }
+        });
+    </script>
 </html>

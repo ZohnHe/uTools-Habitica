@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HabitTools - Login</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+<body>
+    <div id="start_form">
+        <el-form ref="form" :model="user" label-width="100px">
+            <el-form-item label="用户ID">
+                <el-input v-model="user.userId" maxlength="36" show-word-limit></el-input>
+            </el-form-item>
+            <el-form-item label="API令牌">
+                <el-input v-model="user.apiToken" maxlength="36" show-word-limit></el-input>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" @click="onLogin">登录</el-button>
+            </el-form-item>
+        </el-form>
+    </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/element-ui@2.13.2/lib/index.js"></script>
+<script>
+    var Main = {
+        data() {
+            return {
+                user: {}
+            }
+        },
+        methods: {
+            onLogin() {
+                alert('submit!');
+            }
+        }
+    };
+    var Ctor = Vue.extend(Main);
+    new Ctor().$mount('#start_form');
+</script>
+</html>
