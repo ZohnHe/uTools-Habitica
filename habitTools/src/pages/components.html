@@ -12,11 +12,11 @@
         <el-aside width="200px">
             <el-header id="habitica_title">
                 <el-row>
-                    <el-col span="8" id="user_avatar">
-                        <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"></el-avatar>
+                    <el-col :span=8 id="user_avatar">
+                        <el-avatar :src="userAvatarImg"></el-avatar>
                     </el-col>
-                    <el-col span="16" id="user_name">
-                        <el-link href="https://element.eleme.io" target="_blank">鹿友</el-link>
+                    <el-col :span=16 id="user_name">
+                        <el-link @click="openHabitica" target="_blank" >{{userName | ellipsis}}</el-link>
                     </el-col>
                 </el-row>
             </el-header>
@@ -40,22 +40,22 @@
             <el-header>
                 <el-row :gutter="28" type="flex" align="middle">
                     <el-col :span="8">
-                        <el-progress :text-inside="true" :stroke-width="23" :percentage="50" status="exception"></el-progress>
+                        <el-progress :text-inside="true" :stroke-width="23" :percentage="HP/50*100" :title="HP" status="exception" :format="formatHP"></el-progress>
                     </el-col>
                     <el-col :span="8">
-                        <el-progress :text-inside="true" :stroke-width="23" :percentage="80" status="warning"></el-progress>
+                        <el-progress :text-inside="true" :stroke-width="23" :percentage="EXP/maxEXP*100" :title="EXP" status="warning" :format="formatEXP"></el-progress>
                     </el-col>
                     <el-col :span="8">
-                        <el-progress :text-inside="true" :stroke-width="23" :percentage="70"></el-progress>
+                        <el-progress :text-inside="true" :stroke-width="23" :percentage="MP/maxMP*100"  :title="MP" :format="formatMP"></el-progress>
                     </el-col>
                 </el-row>
             </el-header>
             <el-main>
-                <el-radio v-model="radio" label="1">任务1</el-radio>
-                <el-divider></el-divider>
-                <el-radio v-model="radio" label="2">任务2</el-radio>
+                <div id="task_list">
+
+                </div>
             </el-main>
-            <el-footer><el-input placeholder = "键入回车创建"></el-input></el-footer>
+            <el-footer><el-input placeholder="键入回车新建" @keyup.enter.native="create" v-model="createInput"></el-input></el-footer>
         </el-container>
     </el-container>
 </div>
@@ -64,7 +64,42 @@
 <script src="https://unpkg.com/element-ui@2.13.2/lib/index.js"></script>
 <script>
     new Vue({
-        el: '#app'
+        el: '#app',
+        data: {
+            userAvatarImg: "https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png",
+            userName: "鹿友",
+            HP: 40,
+            EXP: 1074,
+            maxEXP: 1200,
+            MP: 418,
+            maxMP: 430,
+            menuVal: 1,
+            createInput: '123'
+        },
+        methods: {
+            openHabitica() {
+                utools.shellOpenExternal('https://habitica.com/');
+            },
+            //格式化进度条，显示具体数值
+            formatHP(percentage) {return this.HP;},
+            formatEXP(percentage) {return this.EXP;},
+            formatMP(percentage) {return this.MP;},
+            create() {
+                alert("创建："+this.menuVal)
+            }
+        },
+        filters: {
+            ellipsis: function(value) {
+                if (!value) return '';
+                if (value.length < 8) return value;
+                //长度超长的根据名字判断，纯汉字最大7位，纯英文数字最大14位
+                if (/^[A-Za-z0-9]+$/.test(value)) {
+                    return value.slice(0, 12) + '...';
+                } else {
+                    return value.slice(0, 6) + '...';
+                }
+            }
+        }
     });
 </script>
 </html>

@@ -39,19 +39,29 @@
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/element-ui@2.13.2/lib/index.js"></script>
     <script>
-        var state = true;
+        var state = false;
         new Vue({
             el: '#app',
             data: {
-                showImg: false
+                showImg: true
+            },
+            methods: {
+                routerTo(target) {
+                    alert(target);
+                }
             },
             mounted() {
-                this.timer = setInterval(() => {
-                    this.showImg = state;
-                    state = !state;
-                }, 1200);
+                if (this.timer) {
+                    clearInterval(this.timer);
+                } else {
+                    this.timer = setInterval(() => {
+                        this.showImg = state;
+                        state = !state;
+                    }, 1200);
+                }
             },
             destroyed() {
+                console.debug("开始动画销毁了");
                 clearInterval(this.timer);
             }
         });
