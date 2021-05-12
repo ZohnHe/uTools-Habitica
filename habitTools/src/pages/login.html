@@ -13,7 +13,7 @@
             background-color: #271B3D;
         }
         body {
-            background: url("../images/stars.png") top repeat-x;
+            background: url("../static/img/stars.png") top repeat-x;
         }
         #start_form {
             width: 60%;
@@ -52,6 +52,7 @@
 </body>
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 <script src="https://unpkg.com/element-ui@2.13.2/lib/index.js"></script>
+<script src="./../static/js/uTools.js"></script>
 <script>
     var Main = {
         data() {
@@ -67,7 +68,7 @@
                 alert('submit!');
             },
             onRegistered(){
-                utools.shellOpenExternal('https://habitica.com/static/home');
+                openBrowser('https://habitica.com/static/home');
             }
         }
     };
