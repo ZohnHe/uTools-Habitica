@@ -8,7 +8,30 @@
 </head>
 <body>
 <div id="app">
-    <loading v-if="isLoading"/>
+    <div v-if="isLoading" class="full-screen">
+        <loading />
+    </div>
+    <div v-else>主界面</div>
+    <el-drawer direction="ttb" size="80%" @closed="loginHabitica" :visible.sync="dialog" ref="drawer" title="登录" :with-header="false">
+        <div id="loginDrawer" class="full-screen">
+            <el-form ref="form" :model="userForm" id="loginForm">
+                <el-form-item>
+                    <el-input v-model="userForm.userId" maxlength="36" show-word-limit placeholder="用户ID"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-input v-model="userForm.apiToken" maxlength="36" show-word-limit placeholder="API令牌"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-row>
+                        <el-col :span=11><el-button class="loginBtn" @click="onRegistered">注 册</el-button></el-col>
+                        <el-col :span=2>&nbsp;</el-col>
+                        <el-col :span=11><el-button class="loginBtn" type="primary" @click="onLogin">登 录</el-button></el-col>
+                    </el-row>
+                </el-form-item>
+            </el-form>
+        </div>
+    </el-drawer>
+
 </div>
 
 </body>
@@ -16,22 +39,48 @@
 <script src="https://unpkg.com/element-ui@2.13.2/lib/index.js"></script>
 <script src="./src/static/js/uTools.js"></script>
 <script src="./src/static/js/components.js"></script>
+<script src="./src/static/js/habitica.js"></script>
 <script>
     new Vue({
         el: '#app',
         data: {
-            isLoading: true
+            isLoading: true,
+            dialog: false,
+            userForm: {
+                userId: '',
+                apiToken: ''
+            }
         },
-        created() {
+        methods: {
+            onRegistered() {
+                openBrowser('https://habitica.com/static/home');
+            },
+            onLogin() {
+                this.dialog = false;
+            },
+            loginHabitica() {
+                console.info("handle Close");
+                if (getHBUserInfo(this.userForm.userId, this.userForm.apiToken)) {
+                    console.info("成功登录");
+                    this.isLoading = false;
+                } else {
+                    this.dialog = true;
+                    this.$message.error('登录失败');
+                }
+            }
+        },
+        mounted() {
             //获取用户数据
             let userId = getFromDB("userId");
-            if (userId === null) {
-                //跳转登录页面
+            if (!userId) {
+                this.dialog = true;
             } else {
                 //获取habitica数据
-
-                //获取完数据，结束loading，跳转任务界面
-                this.isLoading = false;
+                setTimeout(() => {
+                    console.info("获取habitica数据了");
+                    //获取完数据，结束loading，跳转任务界面
+                    this.isLoading = false;
+                }, 1100);
             }
         }
     });

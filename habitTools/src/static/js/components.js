@@ -1,3 +1,5 @@
+
+
 //loading
 Vue.component('loading', {
     data: function () {
@@ -6,6 +8,7 @@ Vue.component('loading', {
         }
     },
     created() {
+        console.info("开始动画创建了");
         let state = false;
         if (this.timer) {
             clearInterval(this.timer);
@@ -17,8 +20,7 @@ Vue.component('loading', {
         }
     },
     destroyed() {
-        //todo 需要观察路由后到底有没有销毁
-        console.debug("开始动画销毁了");
+        console.info("开始动画销毁了");
         clearInterval(this.timer);
     },
     template: '<transition name="fade"><div id="start_image" v-show="showImg"><el-image src="./src/static/img/habitica.png" fit="contain"></el-image></div></transition>'

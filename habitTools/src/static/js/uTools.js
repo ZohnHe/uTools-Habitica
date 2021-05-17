@@ -1,7 +1,10 @@
 //https://u.tools/docs/developer/api.html#utools-api
 
 function getFromDB(key) {
-    return utools.db.get(key);
+    //todo 用户信息需要加密解密
+
+    // return utools.db.get(key);
+    return "";
 }
 
 function openBrowser(uri) {
