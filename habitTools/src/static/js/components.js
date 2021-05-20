@@ -16,7 +16,7 @@ Vue.component('loading', {
             this.timer = setInterval(() => {
                 this.showImg = state;
                 state = !state;
-            }, 800);
+            }, 500);
         }
     },
     destroyed() {

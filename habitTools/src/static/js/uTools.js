@@ -1,10 +1,21 @@
 //https://u.tools/docs/developer/api.html#utools-api
+const DB_KEY_USER_INFO = "USER_INFO";
+const DB_KEY_SPLIT = "@";
 
 function getFromDB(key) {
-    //todo 用户信息需要加密解密
+    let valueJson = utools.db.get(key);
+    if (!valueJson) {
+        console.info("db get null!");
+        return null;
+    }
+    let value = valueJson.data;
+    console.info("db get = " + value);
+    return window.atob(value);
+}
 
-    // return utools.db.get(key);
-    return "";
+function saveToDB(key, value) {
+    let sign = window.btoa(value);
+    return utools.db.put({_id: key, data: sign});
 }
 
 function openBrowser(uri) {

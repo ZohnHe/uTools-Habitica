@@ -2,16 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="./src/static/css/element-ui.css">
     <link rel="stylesheet" href="./src/static/css/components.css">
     <title>HabitTools</title>
 </head>
 <body>
 <div id="app">
-    <div v-if="isLoading" class="full-screen">
+    <div v-if="isLoading" class="full-screen" key="load-body">
         <loading />
     </div>
-    <div v-else>主界面</div>
+    <div v-else key="main-body">主界面</div>
     <el-drawer direction="ttb" size="80%" @closed="loginHabitica" :visible.sync="dialog" ref="drawer" title="登录" :with-header="false">
         <div id="loginDrawer" class="full-screen">
             <el-form ref="form" :model="userForm" id="loginForm">
@@ -35,8 +35,9 @@
 </div>
 
 </body>
-<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-<script src="https://unpkg.com/element-ui@2.13.2/lib/index.js"></script>
+<script src="./src/static/js/vue-dev.js"></script>
+<script src="./src/static/js/element-ui.js"></script>
+<script src="./src/static/js/axios.js"></script>
 <script src="./src/static/js/uTools.js"></script>
 <script src="./src/static/js/components.js"></script>
 <script src="./src/static/js/habitica.js"></script>
@@ -46,10 +47,7 @@
         data: {
             isLoading: true,
             dialog: false,
-            userForm: {
-                userId: '',
-                apiToken: ''
-            }
+            userForm: {userId: '', apiToken: ''}
         },
         methods: {
             onRegistered() {
@@ -59,29 +57,45 @@
                 this.dialog = false;
             },
             loginHabitica() {
-                console.info("handle Close");
-                if (getHBUserInfo(this.userForm.userId, this.userForm.apiToken)) {
-                    console.info("成功登录");
-                    this.isLoading = false;
-                } else {
-                    this.dialog = true;
-                    this.$message.error('登录失败');
-                }
+                getHBUserInfo(this.userForm.userId, this.userForm.apiToken, (userInfo) => {
+                    if (userInfo) {
+                        console.info(userInfo.profile.name);
+                        saveToDB(DB_KEY_USER_INFO, this.userForm.apiToken + DB_KEY_SPLIT + this.userForm.userId);
+                        this.isLoading = false;
+                    } else {
+                        this.dialog = true;
+                        let that = this;
+                        setTimeout(function () {
+                            that.$message.error('登录失败');
+                        }, 200);
+                    }
+                });
             }
         },
         mounted() {
-            //获取用户数据
-            let userId = getFromDB("userId");
-            if (!userId) {
-                this.dialog = true;
-            } else {
-                //获取habitica数据
-                setTimeout(() => {
-                    console.info("获取habitica数据了");
-                    //获取完数据，结束loading，跳转任务界面
-                    this.isLoading = false;
-                }, 1100);
-            }
+            utools.onPluginReady(() => {
+                console.info("onPluginReady");
+                const userInfo = getFromDB(DB_KEY_USER_INFO);
+                console.info(userInfo);
+                if (!userInfo) {
+                    this.dialog = true;
+                    return;
+                }
+                let values = userInfo.split(DB_KEY_SPLIT);
+                console.info("获取habitica数据");
+                getHBUserInfo(values[1], values[0], (userInfo) => {
+                    if (userInfo) {
+                        console.info(userInfo.profile.name);
+                        this.isLoading = false;
+                    } else {
+                        this.dialog = true;
+                        let that = this;
+                        setTimeout(function () {
+                            that.$message.error('凭证失效');
+                        }, 200);
+                    }
+                });
+            });
         }
     });
 </script>

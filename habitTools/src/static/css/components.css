@@ -13,7 +13,7 @@ html,body,#app,.el-container,.full-screen{
     top: 33%;
 }
 .fade-enter-active, .fade-leave-active {
-    transition: opacity 0.7s;
+    transition: opacity 0.4s;
 }
 .fade-enter, .fade-leave-to {
     opacity: 0;

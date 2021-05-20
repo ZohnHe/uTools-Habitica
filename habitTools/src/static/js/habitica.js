@@ -1,11 +1,15 @@
 
-function getHBUserInfo(userId, userKey) {
-    console.info("获取habitica用户数据：" + userId + "," + userKey);
-    setTimeout(function () {
-        let message = '';
-        console.info("habitica 返回： " + message);
-        return message;
-    },3000);
+function getHBUserInfo(userId, userKey, after) {
+    axios.get("https://habitica.com/api/v3/user?userFields=profile,stats,tasksOrder", {
+        headers: {'X-Api-User': userId, 'X-Api-Key': userKey}
+    }).then(res => {
+        if (res.data.success) {
+            after(res.data.data);
+        }
+    }).catch(err => {
+        console.error("request habitica error: " + err);
+        after(null);
+    });
 }
 
 function getHBHabit() {
