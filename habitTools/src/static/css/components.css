@@ -42,22 +42,42 @@ html,body,#app,.el-container,.full-screen{
 .el-aside {
     background-color: rgb(238, 241, 246);
 }
+.el-avatar {
+    background-color: rgb(238, 241, 246);
+    width: 30px;
+    height: 30px;
+}
+.el-avatar>img {
+    height: 100%;
+}
+.el-badge__content {
+    background-color: #432874;
+}
 #habitica_title {
     font-size: 12px;
     background-color: rgb(238, 241, 246);
 }
 #user_avatar {
     position: relative;
+    top: 25%;
+}
+#user-info {
+    position: relative;
     top: 15%;
 }
-#user_name {
-    position: relative;
-    top: 35%;
+#user-name {
+    font: 15px Medium;
+    font-weight: bold;
+}
+#user-username {
+    font: 12px Extra small-caption;
+    margin: 0.4em 0;
+    color: #432874;
 }
 .el-menu {
     border-right: none;
 }
-.el-menu-item.is-active {
+.el-menu-item {
     color: #432874;
 }
 .el-link.el-link--default {
