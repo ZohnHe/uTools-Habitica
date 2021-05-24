@@ -17,11 +17,19 @@
                 <el-header id="habitica_title">
                     <el-row>
                         <el-col :span=7 id="user_avatar">
-                            <el-avatar :src="userAvatarImg"></el-avatar>
+                            <el-popover placement="bottom-start" trigger="hover">
+                                <el-button type="text" icon="el-icon-refresh" @click="onSynchronousData">同步</el-button>
+                                <el-divider direction="vertical"></el-divider>
+                                <el-button type="text" icon="el-icon-switch-button" @click="onLogout">注销</el-button>
+                                <el-avatar shape="square" :src="userAvatarImg" slot="reference"></el-avatar>
+                            </el-popover>
                         </el-col>
                         <el-col :span=17 id="user-info">
-                            <el-link @click="openHabitica" target="_blank" id="user-name">{{name | ellipsis}}</el-link>
-                            <p id="user-username">@{{username}} · 等级 {{level}}</p>
+                            <el-link @click="openHabitica" target="_blank" id="user-name">{{name | ellipsisName}}</el-link>
+                            <el-tooltip class="item" effect="light" placement="bottom-start">
+                                <div slot="content">{{username}}</div>
+                                <p id="user-username">{{username | ellipsisUserName}} · 等级 {{level}}</p>
+                            </el-tooltip>
                         </el-col>
                     </el-row>
                 </el-header>
@@ -35,7 +43,7 @@
                         <span slot="title">每日任务</span>
                     </el-menu-item>
                     <el-menu-item index="3">
-                        <i class="el-icon-notebook-2"></i>
+                        <i class="el-icon-finished"></i>
                         <span slot="title">待办事项</span>
                     </el-menu-item>
                 </el-menu>
@@ -99,16 +107,16 @@
             isLoading: true,
             dialog: false,
             userForm: {userId: '', apiToken: ''},
-            userAvatarImg: "./src/static/svg/wizard.svg",
-            name: "鹿友",
-            username: "Zohn",
-            level: 51,
-            HP: 10,
-            EXP: 1074,
-            maxEXP: 1200,
-            MP: 418,
-            maxMP: 430,
-            menuVal: 1,
+            userAvatarImg: "",
+            name: "",
+            username: "",
+            level: 0,
+            HP: 0,
+            EXP: 0,
+            maxEXP: 0,
+            MP: 0,
+            maxMP: 0,
+            menuVal: 0,
             createInput: ''
         },
         methods: {
@@ -121,9 +129,10 @@
             loginHabitica() {
                 getHBUserInfo(this.userForm.userId, this.userForm.apiToken, (userInfo) => {
                     if (userInfo) {
-                        console.info(userInfo.profile.name);
-                        this.
+                        this.refreshData(userInfo);
                         saveToDB(DB_KEY_USER_INFO, this.userForm.apiToken + DB_KEY_SPLIT + this.userForm.userId);
+                        this.userForm.apiToken = '';
+                        this.userForm.userId = '';
                         this.isLoading = false;
                     } else {
                         this.dialog = true;
@@ -134,7 +143,49 @@
                     }
                 });
             },
-            //主界面开始
+            onSynchronousData() {
+                const userInfo = getFromDB(DB_KEY_USER_INFO);
+                if (!userInfo) {
+                    this.dialog = true;
+                    return;
+                }
+                let values = userInfo.split(DB_KEY_SPLIT);
+                getHBUserInfo(values[1], values[0], (userInfo) => {
+                    if (userInfo) {
+                        this.refreshData(userInfo);
+                        this.$message({
+                            message: '已同步',
+                            center: true,
+                            type: 'success',
+                            duration: 1000,
+                            offset: 70
+                        });
+                    } else {
+                        this.dialog = true;
+                        let that = this;
+                        setTimeout(function () {
+                            that.$message.error('账号异常');
+                        }, 200);
+                    }
+                });
+            },
+            refreshData(userInfo) {
+                this.name = userInfo.profile.name;
+                this.username = userInfo.auth.local.username;
+                this.level = userInfo.stats.lvl;
+                this.HP = Math.round(userInfo.stats.hp);
+                this.EXP = Math.round(userInfo.stats.exp);
+                this.maxEXP = userInfo.stats.toNextLevel;
+                this.MP = Math.round(userInfo.stats.mp);
+                this.maxMP = userInfo.stats.maxMP;
+                this.userAvatarImg = "./src/static/svg/" + userInfo.stats.class + ".svg";
+                this.isLoading = false;
+            },
+            onLogout() {
+                this.isLoading = true;
+                delInDB(DB_KEY_USER_INFO);
+                this.dialog = true;
+            },
             openHabitica() {
                 openBrowser('https://habitica.com/');
             },
@@ -148,39 +199,22 @@
         },
         mounted() {
             utools.onPluginReady(() => {
-                console.info("onPluginReady");
-                const userInfo = getFromDB(DB_KEY_USER_INFO);
-                console.info(userInfo);
-                if (!userInfo) {
-                    this.dialog = true;
-                    return;
-                }
-                let values = userInfo.split(DB_KEY_SPLIT);
-                console.info("获取habitica数据");
-                getHBUserInfo(values[1], values[0], (userInfo) => {
-                    if (userInfo) {
-                        console.info(userInfo.profile.name);
-                        this.isLoading = false;
-                    } else {
-                        this.dialog = true;
-                        let that = this;
-                        setTimeout(function () {
-                            that.$message.error('凭证失效');
-                        }, 200);
-                    }
-                });
+                this.onSynchronousData();
             });
         },
         filters: {
-            ellipsis: function(value) {
+            ellipsisName: function(value) {
+                if (!value) return '';
+                if (/^[A-Za-z0-9]+$/.test(value)) {
+                    return value.length < 15 ? value : value.slice(0, 13) + '...';
+                } else {
+                    return value.length < 8 ? value : value.slice(0, 6) + '...';
+                }
+            },
+            ellipsisUserName: function (value) {
                 if (!value) return '';
                 if (value.length < 8) return value;
-                //长度超长的根据名字判断，纯汉字最大7位，纯英文数字最大14位
-                if (/^[A-Za-z0-9]+$/.test(value)) {
-                    return value.slice(0, 12) + '...';
-                } else {
-                    return value.slice(0, 6) + '...';
-                }
+                return value.slice(0, 7) + '...';
             }
         }
     });

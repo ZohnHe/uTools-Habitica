@@ -1,7 +1,8 @@
+const clientValue = "ab029ac0-b53c-451b-829b-1138d283a40c-habitTools";
 
 function getHBUserInfo(userId, userKey, after) {
-    axios.get("https://habitica.com/api/v3/user?userFields=profile,stats,tasksOrder", {
-        headers: {'X-Api-User': userId, 'X-Api-Key': userKey}
+    axios.get("https://habitica.com/api/v3/user", {
+        headers: {'x-client': clientValue, 'x-api-user': userId, 'x-api-key': userKey}
     }).then(res => {
         if (res.data.success) {
             after(res.data.data);

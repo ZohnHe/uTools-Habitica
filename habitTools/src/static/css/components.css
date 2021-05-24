@@ -32,7 +32,6 @@ html,body,#app,.el-container,.full-screen{
 .loginBtn {
     width: 100%;
 }
-
 /*任务界面*/
 .el-header {
     background-color: #432874;
@@ -74,6 +73,13 @@ html,body,#app,.el-container,.full-screen{
     margin: 0.4em 0;
     color: #432874;
 }
+.el-button--text {
+    color: #432874;
+    width: 60px;
+}
+.el-popover {
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .5);
+}
 .el-menu {
     border-right: none;
 }
@@ -83,7 +89,6 @@ html,body,#app,.el-container,.full-screen{
 .el-link.el-link--default {
     color: #432874;
 }
-
 /*右侧*/
 #content {
     border: 1px solid #432874;

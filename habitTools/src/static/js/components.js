@@ -1,6 +1,3 @@
-
-
-//loading
 Vue.component('loading', {
     data: function () {
         return {
