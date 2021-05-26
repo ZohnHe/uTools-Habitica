@@ -8,9 +8,7 @@
 </head>
 <body>
 <div id="app">
-    <div v-if="isLoading" class="full-screen" key="load-body">
-        <loading />
-    </div>
+    <div v-if="isLoading" class="full-screen" key="load-body"><loading /></div>
     <div v-else key="main-body" class="full-screen">
         <el-container>
             <el-aside width="200px">
@@ -34,21 +32,11 @@
                     </el-row>
                 </el-header>
                 <el-menu default-active="1">
-                    <el-menu-item index="1">
-                        <i class="el-icon-time"></i>
-                        <span slot="title">习惯</span>
-                    </el-menu-item>
-                    <el-menu-item index="2">
-                        <i class="el-icon-sunrise-1"></i>
-                        <span slot="title">每日任务</span>
-                    </el-menu-item>
-                    <el-menu-item index="3">
-                        <i class="el-icon-finished"></i>
-                        <span slot="title">待办事项</span>
-                    </el-menu-item>
+                    <el-menu-item index="1" @click="menuVal=1"><i class="el-icon-time"></i><span slot="title">习惯</span></el-menu-item>
+                    <el-menu-item index="2" @click="menuVal=2"><i class="el-icon-sunrise-1"></i><span slot="title">每日任务</span></el-menu-item>
+                    <el-menu-item index="3" @click="menuVal=3"><i class="el-icon-finished"></i><span slot="title">待办事项</span></el-menu-item>
                 </el-menu>
             </el-aside>
-
             <el-container id="content">
                 <el-header>
                     <el-row :gutter="28" type="flex" align="middle">
@@ -65,6 +53,44 @@
                 </el-header>
                 <el-main>
                     <div id="task_list">
+                        <div id="habit_list" v-show="menuVal===1">
+                            <template v-for="item in habitList">
+                                <el-card shadow="hover" :body-style="{color:item.color}">
+                                    <el-row :gutter="18">
+                                        <el-col :span="2" class="task-icon" :class="[item.up ? 'task-icon-able' : '']">
+                                            <i class="el-icon-circle-plus-outline"></i>
+                                        </el-col>
+                                        <el-col :span="20">
+                                            {{item.text}}
+                                            <p>{{item.notes}}</p>
+                                        </el-col>
+                                        <el-col :span="2" class="task-icon" :class="[item.down ? 'task-icon-able' : '']">
+                                            <i class="el-icon-remove-outline"></i>
+                                        </el-col>
+                                    </el-row>
+                                </el-card>
+                            </template>
+                        </div>
+
+                        <div id="daily_list" v-show="menuVal===2">
+                            <template v-for="item in dailyList">
+                                <el-card shadow="hover" :body-style="{color:item.color}">
+                                    <el-row :gutter="18">
+                                        <el-col :span="2" class="task-icon" :class="[item.completed ? 'task-icon-completed' : '']">
+                                            <i class="el-icon-circle-check"></i>
+                                        </el-col>
+                                        <el-col :span="22">
+                                            {{item.text}}
+                                            <p>{{item.notes}}</p>
+                                        </el-col>
+                                    </el-row>
+                                </el-card>
+                            </template>
+                        </div>
+
+                        <div id="todo_list" v-show="menuVal===3">
+                            todo
+                        </div>
 
                     </div>
                 </el-main>
@@ -76,10 +102,10 @@
         <div id="loginDrawer" class="full-screen">
             <el-form ref="form" :model="userForm" id="loginForm">
                 <el-form-item>
-                    <el-input v-model="userForm.userId" maxlength="36" show-word-limit placeholder="用户ID"></el-input>
+                    <el-input v-model="userForm.user" maxlength="36" show-word-limit placeholder="用户ID"></el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-input v-model="userForm.apiToken" maxlength="36" show-word-limit placeholder="API令牌"></el-input>
+                    <el-input v-model="userForm.key" maxlength="36" show-word-limit placeholder="API令牌"></el-input>
                 </el-form-item>
                 <el-form-item>
                     <el-row>
@@ -106,7 +132,7 @@
         data: {
             isLoading: true,
             dialog: false,
-            userForm: {userId: '', apiToken: ''},
+            userForm: {user: '', key: ''},
             userAvatarImg: "",
             name: "",
             username: "",
@@ -116,23 +142,22 @@
             maxEXP: 0,
             MP: 0,
             maxMP: 0,
-            menuVal: 0,
+            menuVal: 1,
+            habitList: [],
+            dailyList: [],
+            todoList: [],
             createInput: ''
         },
         methods: {
-            onRegistered() {
-                openBrowser('https://habitica.com/static/home');
-            },
-            onLogin() {
-                this.dialog = false;
-            },
+            onRegistered() {openBrowser('https://habitica.com/static/home');},
+            onLogin() {this.dialog = false;},
             loginHabitica() {
-                getHBUserInfo(this.userForm.userId, this.userForm.apiToken, (userInfo) => {
+                getHBUserInfo(this.userForm.user, this.userForm.key, (userInfo) => {
                     if (userInfo) {
-                        this.refreshData(userInfo);
-                        saveToDB(DB_KEY_USER_INFO, this.userForm.apiToken + DB_KEY_SPLIT + this.userForm.userId);
-                        this.userForm.apiToken = '';
-                        this.userForm.userId = '';
+                        this.refreshData(userInfo, this.userForm.user, this.userForm.key);
+                        saveToDB(DB_KEY_USER_INFO, this.userForm.key + DB_KEY_SPLIT + this.userForm.user);
+                        this.userForm.key = '';
+                        this.userForm.user = '';
                         this.isLoading = false;
                     } else {
                         this.dialog = true;
@@ -150,9 +175,10 @@
                     return;
                 }
                 let values = userInfo.split(DB_KEY_SPLIT);
-                getHBUserInfo(values[1], values[0], (userInfo) => {
+                let user = values[1], key = values[0];
+                getHBUserInfo(user, key, (userInfo) => {
                     if (userInfo) {
-                        this.refreshData(userInfo);
+                        this.refreshData(userInfo, user, key);
                         this.$message({
                             message: '已同步',
                             center: true,
@@ -169,27 +195,57 @@
                     }
                 });
             },
-            refreshData(userInfo) {
+            refreshData(userInfo, user, key) {
                 this.name = userInfo.profile.name;
                 this.username = userInfo.auth.local.username;
                 this.level = userInfo.stats.lvl;
-                this.HP = Math.round(userInfo.stats.hp);
-                this.EXP = Math.round(userInfo.stats.exp);
+                this.HP = ~~userInfo.stats.hp;
+                this.EXP = ~~userInfo.stats.exp;
                 this.maxEXP = userInfo.stats.toNextLevel;
-                this.MP = Math.round(userInfo.stats.mp);
+                this.MP = ~~userInfo.stats.mp;
                 this.maxMP = userInfo.stats.maxMP;
                 this.userAvatarImg = "./src/static/svg/" + userInfo.stats.class + ".svg";
                 this.isLoading = false;
+                getHBHabit(user, key, (tasks) =>{
+                    if (tasks) {
+                        this.habitList = [];
+                        this.dailyList = [];
+                        this.todoList = [];
+                        for (let i = 0; i < tasks.length ; ++i) {
+                            let task = tasks[i];
+                            if (task.type === "habit") {
+                                this.habitList.push({
+                                    text: task.text,
+                                    notes: task.notes,
+                                    color: getColorByValue(task.value),
+                                    up: task.up,
+                                    down: task.down
+                                });
+                            }else if (task.type === "daily") {
+                                this.dailyList.push({
+                                    text: task.text,
+                                    notes: task.notes,
+                                    color: getColorByValue(task.value),
+                                    completed: task.completed,
+                                });
+                            }else if (task.type === "todo") {
+                                this.todoList.push({});
+                            }
+                        }
+                    } else {
+                        let that = this;
+                        setTimeout(function () {
+                            that.$message.error('同步任务异常，请重试');
+                        }, 200);
+                    }
+                });
             },
             onLogout() {
                 this.isLoading = true;
                 delInDB(DB_KEY_USER_INFO);
                 this.dialog = true;
             },
-            openHabitica() {
-                openBrowser('https://habitica.com/');
-            },
-            //格式化进度条，显示具体数值
+            openHabitica() {openBrowser('https://habitica.com/');},
             formatHP(percentage) {return this.HP;},
             formatEXP(percentage) {return this.EXP;},
             formatMP(percentage) {return this.MP;},
@@ -198,9 +254,7 @@
             }
         },
         mounted() {
-            utools.onPluginReady(() => {
-                this.onSynchronousData();
-            });
+            utools.onPluginEnter(() => this.onSynchronousData());
         },
         filters: {
             ellipsisName: function(value) {
