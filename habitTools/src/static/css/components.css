@@ -108,8 +108,13 @@ html,body,#app,.el-container,.full-screen{
 .task-icon {
     text-align: center;
     font-size: 30px;
+}
+.task-icon :hover {
+    cursor: pointer;
+}
+.task-icon-disable {
     color: #EFEFEF;
 }
-.task-icon-able {
-    cursor: pointer;
+.task-icon-disable :hover {
+    cursor: not-allowed;
 }

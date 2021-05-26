@@ -57,14 +57,14 @@
                             <template v-for="item in habitList">
                                 <el-card shadow="hover" :body-style="{color:item.color}">
                                     <el-row :gutter="18">
-                                        <el-col :span="2" class="task-icon" :class="[item.up ? 'task-icon-able' : '']">
+                                        <el-col :span="2" class="task-icon" :class="[item.up ? '' : 'task-icon-disable']">
                                             <i class="el-icon-circle-plus-outline"></i>
                                         </el-col>
                                         <el-col :span="20">
                                             {{item.text}}
                                             <p>{{item.notes}}</p>
                                         </el-col>
-                                        <el-col :span="2" class="task-icon" :class="[item.down ? 'task-icon-able' : '']">
+                                        <el-col :span="2" class="task-icon" :class="[item.down ? '' : 'task-icon-disable']">
                                             <i class="el-icon-remove-outline"></i>
                                         </el-col>
                                     </el-row>
