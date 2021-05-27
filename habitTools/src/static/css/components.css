@@ -97,6 +97,9 @@ html,body,#app,.el-container,.full-screen{
 .el-row {
     height: 100%;
 }
+.el-main::-webkit-scrollbar {
+    width: 0 !important
+}
 #task_list {
     font-size: 16px;
 }
@@ -107,14 +110,27 @@ html,body,#app,.el-container,.full-screen{
 }
 .task-icon {
     text-align: center;
-    font-size: 30px;
+    font-size: 25px;
 }
 .task-icon :hover {
     cursor: pointer;
 }
 .task-icon-disable {
-    color: #EFEFEF;
+    color: #C3C0C8;
 }
 .task-icon-disable :hover {
     cursor: not-allowed;
+}
+.task-completed {
+    color: #C3C0C8; !important;
+}
+.todo-circle {
+    border-radius: 100%;
+    border: 2px solid;
+    width: 19px;
+    height: 19px;
+    margin: 0 auto;
+}
+.el-input {
+    top: 20%;
 }

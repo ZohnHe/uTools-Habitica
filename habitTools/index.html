@@ -60,10 +60,7 @@
                                         <el-col :span="2" class="task-icon" :class="[item.up ? '' : 'task-icon-disable']">
                                             <i class="el-icon-circle-plus-outline"></i>
                                         </el-col>
-                                        <el-col :span="20">
-                                            {{item.text}}
-                                            <p>{{item.notes}}</p>
-                                        </el-col>
+                                        <el-col :span="20">{{item.text}}<p>{{item.notes}}</p></el-col>
                                         <el-col :span="2" class="task-icon" :class="[item.down ? '' : 'task-icon-disable']">
                                             <i class="el-icon-remove-outline"></i>
                                         </el-col>
@@ -75,14 +72,12 @@
                         <div id="daily_list" v-show="menuVal===2">
                             <template v-for="item in dailyList">
                                 <el-card shadow="hover" :body-style="{color:item.color}">
-                                    <el-row :gutter="18">
-                                        <el-col :span="2" class="task-icon" :class="[item.completed ? 'task-icon-completed' : '']">
-                                            <i class="el-icon-circle-check"></i>
+                                    <el-row :gutter="18" :class="{'task-completed': item.completed }">
+                                        <el-col :span="2" class="task-icon">
+                                            <i v-if="item.completed" class="el-icon-circle-check"></i>
+                                            <div v-else class="todo-circle"></div>
                                         </el-col>
-                                        <el-col :span="22">
-                                            {{item.text}}
-                                            <p>{{item.notes}}</p>
-                                        </el-col>
+                                        <el-col :span="22">{{item.text}}<p>{{item.notes}}</p></el-col>
                                     </el-row>
                                 </el-card>
                             </template>
@@ -94,7 +89,9 @@
 
                     </div>
                 </el-main>
-                <el-footer><el-input placeholder="键入回车新建" @keyup.enter.native="create" v-model="createInput"></el-input></el-footer>
+                <el-footer style="height: 70px;">
+                    <el-input placeholder="键入回车新建" @keyup.enter.native="create" v-model="createInput"></el-input>
+                </el-footer>
             </el-container>
         </el-container>
     </div>
