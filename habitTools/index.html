@@ -77,14 +77,44 @@
                                             <i v-if="item.completed" class="el-icon-circle-check"></i>
                                             <div v-else class="todo-circle"></div>
                                         </el-col>
-                                        <el-col :span="22">{{item.text}}<p>{{item.notes}}</p></el-col>
+                                        <el-col :span="20">{{item.text}}<p>{{item.notes}}</p></el-col>
+                                        <el-col :span="2" class="task-icon" v-if="item.checklist.length > 0">
+                                            <i :class="[item.collapseChecklist ? 'el-icon-arrow-left' : 'el-icon-arrow-down']"
+                                               @click="item.collapseChecklist=!item.collapseChecklist;changeCollapseIcon(item.id,item.collapseChecklist);"></i>
+                                        </el-col>
                                     </el-row>
+                                    <div v-if="item.checklist.length > 0 && !item.collapseChecklist">
+                                        <el-divider class="checklist-line"></el-divider>
+                                        <div v-for="ck in item.checklist" :key="ck.id" class="checklist">
+                                            <el-checkbox v-model="ck.completed" :style="{color:item.color}">{{ck.text}}</el-checkbox>
+                                        </div>
+                                    </div>
                                 </el-card>
                             </template>
                         </div>
 
                         <div id="todo_list" v-show="menuVal===3">
-                            todo
+                            <template v-for="item in todoList">
+                                <el-card shadow="hover" :body-style="{color:item.color}">
+                                    <el-row :gutter="18" :class="{'task-completed': item.completed }">
+                                        <el-col :span="2" class="task-icon">
+                                            <i v-if="item.completed" class="el-icon-circle-check"></i>
+                                            <div v-else class="todo-circle"></div>
+                                        </el-col>
+                                        <el-col :span="20">{{item.text}}<p>{{item.notes}}</p></el-col>
+                                        <el-col :span="2" class="task-icon" v-if="item.checklist.length > 0">
+                                            <i :class="[item.collapseChecklist ? 'el-icon-arrow-left' : 'el-icon-arrow-down']"
+                                               @click="item.collapseChecklist=!item.collapseChecklist;changeCollapseIcon(item.id,item.collapseChecklist);"></i>
+                                        </el-col>
+                                    </el-row>
+                                    <div v-if="item.checklist.length > 0 && !item.collapseChecklist">
+                                        <el-divider class="checklist-line"></el-divider>
+                                        <div v-for="ck in item.checklist" :key="ck.id" class="checklist">
+                                            <el-checkbox v-model="ck.completed" :style="{color:item.color}">{{ck.text}}</el-checkbox>
+                                        </div>
+                                    </div>
+                                </el-card>
+                            </template>
                         </div>
 
                     </div>
@@ -153,9 +183,8 @@
                     if (userInfo) {
                         this.refreshData(userInfo, this.userForm.user, this.userForm.key);
                         saveToDB(DB_KEY_USER_INFO, this.userForm.key + DB_KEY_SPLIT + this.userForm.user);
-                        this.userForm.key = '';
-                        this.userForm.user = '';
                         this.isLoading = false;
+                        this.menuVal = 1;
                     } else {
                         this.dialog = true;
                         let that = this;
@@ -165,19 +194,28 @@
                     }
                 });
             },
+            hasUser() {
+                if (this.dialog || this.userForm.user + this.userForm.key === '') {
+                    const userInfo = getFromDB(DB_KEY_USER_INFO);
+                    if (!userInfo) {
+                        return false;
+                    }
+                    let values = userInfo.split(DB_KEY_SPLIT);
+                    this.userForm.user = values[1];
+                    this.userForm.key = values[0];
+                }
+                return true;
+            },
             onSynchronousData() {
-                const userInfo = getFromDB(DB_KEY_USER_INFO);
-                if (!userInfo) {
+                if (!this.hasUser()) {
                     this.dialog = true;
                     return;
                 }
-                let values = userInfo.split(DB_KEY_SPLIT);
-                let user = values[1], key = values[0];
-                getHBUserInfo(user, key, (userInfo) => {
+                getHBUserInfo(this.userForm.user, this.userForm.key, (userInfo) => {
                     if (userInfo) {
-                        this.refreshData(userInfo, user, key);
+                        this.refreshData(userInfo, this.userForm.user, this.userForm.key);
                         this.$message({
-                            message: '已同步',
+                            message: '同步成功',
                             center: true,
                             type: 'success',
                             duration: 1000,
@@ -187,7 +225,7 @@
                         this.dialog = true;
                         let that = this;
                         setTimeout(function () {
-                            that.$message.error('账号异常');
+                            that.$message.error('失去同步');
                         }, 200);
                     }
                 });
@@ -212,6 +250,7 @@
                             let task = tasks[i];
                             if (task.type === "habit") {
                                 this.habitList.push({
+                                    id: task.id,
                                     text: task.text,
                                     notes: task.notes,
                                     color: getColorByValue(task.value),
@@ -220,13 +259,24 @@
                                 });
                             }else if (task.type === "daily") {
                                 this.dailyList.push({
+                                    id: task.id,
                                     text: task.text,
                                     notes: task.notes,
                                     color: getColorByValue(task.value),
                                     completed: task.completed,
+                                    collapseChecklist: task.collapseChecklist,
+                                    checklist: task.checklist
                                 });
                             }else if (task.type === "todo") {
-                                this.todoList.push({});
+                                this.todoList.push({
+                                    id: task.id,
+                                    text: task.text,
+                                    notes: task.notes,
+                                    color: getColorByValue(task.value),
+                                    completed : task.completed,
+                                    collapseChecklist: task.collapseChecklist,
+                                    checklist: task.checklist
+                                });
                             }
                         }
                     } else {
@@ -239,6 +289,8 @@
             },
             onLogout() {
                 this.isLoading = true;
+                this.userForm.key = '';
+                this.userForm.user = '';
                 delInDB(DB_KEY_USER_INFO);
                 this.dialog = true;
             },
@@ -246,6 +298,9 @@
             formatHP(percentage) {return this.HP;},
             formatEXP(percentage) {return this.EXP;},
             formatMP(percentage) {return this.MP;},
+            changeCollapseIcon(id, collapseChecklist) {
+                updateHBTask(id, this.userForm.user, this.userForm.key, {"collapseChecklist": collapseChecklist});
+            },
             create() {
                 alert("创建："+this.menuVal)
             }

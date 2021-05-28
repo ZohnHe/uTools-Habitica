@@ -1,6 +1,7 @@
 const CLIENT_VALUE = "ab029ac0-b53c-451b-829b-1138d283a40c-habitTools";
 const USER_INFO_URL = "https://habitica.com/api/v3/user";
 const TASKS_URL = "https://habitica.com/api/v3/tasks/user";
+const TASKS_UPDATE_URL = "https://habitica.com/api/v3/tasks/";
 
 function getHBUserInfo(user, key, after) {
     axios.get(USER_INFO_URL, {
@@ -42,4 +43,11 @@ function getColorByValue(value) {
     } else {
         return "#C64F53";
     }
+}
+
+
+function updateHBTask(id, user, key, body) {
+    axios.put(TASKS_UPDATE_URL + id, body, {
+        headers: {'x-client': CLIENT_VALUE, 'x-api-user': user, 'x-api-key': key}
+    });
 }

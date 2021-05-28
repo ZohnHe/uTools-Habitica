@@ -134,3 +134,17 @@ html,body,#app,.el-container,.full-screen{
 .el-input {
     top: 20%;
 }
+.checklist-line {
+    margin: 20px 0;
+}
+.checklist {
+    padding-left: 6%;
+}
+.el-checkbox__input.is-checked .el-checkbox__inner {
+    background-color: #C3C0C8;
+    border-color: #C3C0C8;
+}
+.el-checkbox__input.is-checked+.el-checkbox__label {
+    color: #C3C0C8;
+    text-decoration: line-through;
+}
