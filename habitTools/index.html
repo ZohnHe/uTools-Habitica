@@ -176,13 +176,17 @@
             createInput: ''
         },
         methods: {
-            onRegistered() {openBrowser('https://habitica.com/static/home');},
+            onRegistered() {openBrowser("https://habitica.com/static/home");},
             onLogin() {this.dialog = false;},
             loginHabitica() {
-                getHBUserInfo(this.userForm.user, this.userForm.key, (userInfo) => {
+                headers["x-api-user"] = this.userForm.user;
+                headers["x-api-key"] = this.userForm.key;
+                getHBUserInfo((userInfo) => {
                     if (userInfo) {
-                        this.refreshData(userInfo, this.userForm.user, this.userForm.key);
+                        this.refreshData(userInfo);
                         saveToDB(DB_KEY_USER_INFO, this.userForm.key + DB_KEY_SPLIT + this.userForm.user);
+                        this.userForm.key = '';
+                        this.userForm.user = '';
                         this.isLoading = false;
                         this.menuVal = 1;
                     } else {
@@ -194,26 +198,26 @@
                     }
                 });
             },
-            hasUser() {
-                if (this.dialog || this.userForm.user + this.userForm.key === '') {
+            isNotLogin() {
+                if (!headers["x-api-user"]) {
                     const userInfo = getFromDB(DB_KEY_USER_INFO);
                     if (!userInfo) {
-                        return false;
+                        return true;
                     }
                     let values = userInfo.split(DB_KEY_SPLIT);
-                    this.userForm.user = values[1];
-                    this.userForm.key = values[0];
+                    headers["x-api-user"] = values[1];
+                    headers["x-api-key"] = values[0];
                 }
-                return true;
+                return false;
             },
             onSynchronousData() {
-                if (!this.hasUser()) {
+                if (this.isNotLogin()) {
                     this.dialog = true;
                     return;
                 }
-                getHBUserInfo(this.userForm.user, this.userForm.key, (userInfo) => {
+                getHBUserInfo((userInfo) => {
                     if (userInfo) {
-                        this.refreshData(userInfo, this.userForm.user, this.userForm.key);
+                        this.refreshData(userInfo);
                         this.$message({
                             message: '同步成功',
                             center: true,
@@ -230,7 +234,7 @@
                     }
                 });
             },
-            refreshData(userInfo, user, key) {
+            refreshData(userInfo) {
                 this.name = userInfo.profile.name;
                 this.username = userInfo.auth.local.username;
                 this.level = userInfo.stats.lvl;
@@ -241,7 +245,7 @@
                 this.maxMP = userInfo.stats.maxMP;
                 this.userAvatarImg = "./src/static/svg/" + userInfo.stats.class + ".svg";
                 this.isLoading = false;
-                getHBHabit(user, key, (tasks) =>{
+                getHBHabit((tasks) =>{
                     if (tasks) {
                         this.habitList = [];
                         this.dailyList = [];
@@ -289,25 +293,21 @@
             },
             onLogout() {
                 this.isLoading = true;
-                this.userForm.key = '';
-                this.userForm.user = '';
+                headers["x-api-user"] = '';
+                headers["x-api-key"] = '';
                 delInDB(DB_KEY_USER_INFO);
                 this.dialog = true;
             },
-            openHabitica() {openBrowser('https://habitica.com/');},
+            openHabitica() {openBrowser("https://habitica.com");},
             formatHP(percentage) {return this.HP;},
             formatEXP(percentage) {return this.EXP;},
             formatMP(percentage) {return this.MP;},
-            changeCollapseIcon(id, collapseChecklist) {
-                updateHBTask(id, this.userForm.user, this.userForm.key, {"collapseChecklist": collapseChecklist});
-            },
+            changeCollapseIcon(id, collapseChecklist) {updateHBTask(id, {"collapseChecklist": collapseChecklist});},
             create() {
                 alert("创建："+this.menuVal)
             }
         },
-        mounted() {
-            utools.onPluginEnter(() => this.onSynchronousData());
-        },
+        mounted() {utools.onPluginEnter(() => this.onSynchronousData());},
         filters: {
             ellipsisName: function(value) {
                 if (!value) return '';

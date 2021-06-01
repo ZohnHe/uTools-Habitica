@@ -1,28 +1,20 @@
-const CLIENT_VALUE = "ab029ac0-b53c-451b-829b-1138d283a40c-habitTools";
 const USER_INFO_URL = "https://habitica.com/api/v3/user";
 const TASKS_URL = "https://habitica.com/api/v3/tasks/user";
 const TASKS_UPDATE_URL = "https://habitica.com/api/v3/tasks/";
+var headers = {'x-client': "ab029ac0-b53c-451b-829b-1138d283a40c-habitTools", 'x-api-user': '', 'x-api-key': ''};
 
-function getHBUserInfo(user, key, after) {
-    axios.get(USER_INFO_URL, {
-        headers: {'x-client': CLIENT_VALUE, 'x-api-user': user, 'x-api-key': key}
-    }).then(res => {
-        if (res.data.success) {
-            after(res.data.data);
-        }
+function getHBUserInfo(after) {
+    axios.get(USER_INFO_URL, {headers: headers}).then(res => {
+        if (res.data.success) {after(res.data.data);}
     }).catch(err => {
         console.error("getHBUserInfo request habitica error: " + err);
         after(null);
     });
 }
 
-function getHBHabit(user, key, after) {
-    axios.get(TASKS_URL, {
-        headers: {'x-client': CLIENT_VALUE, 'x-api-user': user, 'x-api-key': key}
-    }).then(res => {
-        if (res.data.success) {
-            after(res.data.data);
-        }
+function getHBHabit(after) {
+    axios.get(TASKS_URL, {headers: headers}).then(res => {
+        if (res.data.success) {after(res.data.data);}
     }).catch(err => {
         console.error("getHBHabit request habitica error: " + err);
         after(null);
@@ -40,14 +32,15 @@ function getColorByValue(value) {
         return "#DDA146";
     }else if (value > -10) {
         return "#DF7C39";
-    } else {
+    }else {
         return "#C64F53";
     }
 }
 
+function updateHBTask(id, body) {
+    axios.put(TASKS_UPDATE_URL + id, body, {headers: headers});
+}
 
-function updateHBTask(id, user, key, body) {
-    axios.put(TASKS_UPDATE_URL + id, body, {
-        headers: {'x-client': CLIENT_VALUE, 'x-api-user': user, 'x-api-key': key}
-    });
+function scoreHBTask(id, direction) {
+    axios.post(TASKS_UPDATE_URL + id + "/score/" + direction, {}, {headers: headers});
 }
