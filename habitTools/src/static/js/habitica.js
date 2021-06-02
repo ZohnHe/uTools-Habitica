@@ -7,7 +7,7 @@ function getHBUserInfo(after) {
     axios.get(USER_INFO_URL, {headers: headers}).then(res => {
         if (res.data.success) {after(res.data.data);}
     }).catch(err => {
-        console.error("getHBUserInfo request habitica error: " + err);
+        console.error("getHBUserInfo request habitica error: ", err);
         after(null);
     });
 }
@@ -16,7 +16,7 @@ function getHBHabit(after) {
     axios.get(TASKS_URL, {headers: headers}).then(res => {
         if (res.data.success) {after(res.data.data);}
     }).catch(err => {
-        console.error("getHBHabit request habitica error: " + err);
+        console.error("getHBHabit request habitica error: ", err);
         after(null);
     });
 }
@@ -41,6 +41,15 @@ function updateHBTask(id, body) {
     axios.put(TASKS_UPDATE_URL + id, body, {headers: headers});
 }
 
-function scoreHBTask(id, direction) {
-    axios.post(TASKS_UPDATE_URL + id + "/score/" + direction, {}, {headers: headers});
+function scoreHBTask(id, direction, after) {
+    axios.post(TASKS_UPDATE_URL + id + "/score/" + direction, {}, {headers: headers}).then(res => {
+        if (res.data.success) {after(res.data.data);}
+    }).catch(err => {
+        console.error("scoreHBTask request habitica error: ", err);
+        after(null);
+    });
+}
+
+function scoreHBCheckList(taskId, checkListId) {
+    axios.post(TASKS_UPDATE_URL + taskId + "/checklist/" + checkListId + "/score", {}, {headers: headers});
 }

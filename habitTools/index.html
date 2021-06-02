@@ -58,11 +58,11 @@
                                 <el-card shadow="hover" :body-style="{color:item.color}">
                                     <el-row :gutter="18">
                                         <el-col :span="2" class="task-icon" :class="[item.up ? '' : 'task-icon-disable']">
-                                            <i class="el-icon-circle-plus-outline"></i>
+                                            <i class="el-icon-circle-plus-outline" @click="scoreTask(item.id, 'up', item.up)"></i>
                                         </el-col>
                                         <el-col :span="20">{{item.text}}<p>{{item.notes}}</p></el-col>
                                         <el-col :span="2" class="task-icon" :class="[item.down ? '' : 'task-icon-disable']">
-                                            <i class="el-icon-remove-outline"></i>
+                                            <i class="el-icon-remove-outline" @click="scoreTask(item.id, 'down', item.down)"></i>
                                         </el-col>
                                     </el-row>
                                 </el-card>
@@ -72,10 +72,12 @@
                         <div id="daily_list" v-show="menuVal===2">
                             <template v-for="item in dailyList">
                                 <el-card shadow="hover" :body-style="{color:item.color}">
-                                    <el-row :gutter="18" :class="{'task-completed': item.completed }">
+                                    <el-row :gutter="18" :class="{'task-completed': item.completed || !item.isDue}">
                                         <el-col :span="2" class="task-icon">
-                                            <i v-if="item.completed" class="el-icon-circle-check"></i>
-                                            <div v-else class="todo-circle"></div>
+                                            <div v-if="item.completed" >
+                                            <i class="el-icon-circle-check" @click="item.completed=!item.completed;scoreTask(item.id, 'down', true);"></i>
+                                            </div>
+                                            <div v-else class="todo-circle" @click="item.completed=!item.completed;scoreTask(item.id, 'up', true);"></div>
                                         </el-col>
                                         <el-col :span="20">{{item.text}}<p>{{item.notes}}</p></el-col>
                                         <el-col :span="2" class="task-icon" v-if="item.checklist.length > 0">
@@ -86,7 +88,7 @@
                                     <div v-if="item.checklist.length > 0 && !item.collapseChecklist">
                                         <el-divider class="checklist-line"></el-divider>
                                         <div v-for="ck in item.checklist" :key="ck.id" class="checklist">
-                                            <el-checkbox v-model="ck.completed" :style="{color:item.color}">{{ck.text}}</el-checkbox>
+                                            <el-checkbox v-model="ck.completed" :style="{color:item.color}" @change="scoreCheckList(item.id,ck.id)">{{ck.text}}</el-checkbox>
                                         </div>
                                     </div>
                                 </el-card>
@@ -98,8 +100,8 @@
                                 <el-card shadow="hover" :body-style="{color:item.color}">
                                     <el-row :gutter="18" :class="{'task-completed': item.completed }">
                                         <el-col :span="2" class="task-icon">
-                                            <i v-if="item.completed" class="el-icon-circle-check"></i>
-                                            <div v-else class="todo-circle"></div>
+                                            <i v-if="item.completed" class="el-icon-circle-check" @click="item.completed=!item.completed;scoreTask(item.id, 'down', true);"></i>
+                                            <div v-else class="todo-circle" @click="item.completed=!item.completed;scoreTask(item.id, 'up', true);"></div>
                                         </el-col>
                                         <el-col :span="20">{{item.text}}<p>{{item.notes}}</p></el-col>
                                         <el-col :span="2" class="task-icon" v-if="item.checklist.length > 0">
@@ -110,7 +112,7 @@
                                     <div v-if="item.checklist.length > 0 && !item.collapseChecklist">
                                         <el-divider class="checklist-line"></el-divider>
                                         <div v-for="ck in item.checklist" :key="ck.id" class="checklist">
-                                            <el-checkbox v-model="ck.completed" :style="{color:item.color}">{{ck.text}}</el-checkbox>
+                                            <el-checkbox v-model="ck.completed" :style="{color:item.color}" @change="scoreCheckList(item.id,ck.id)">{{ck.text}}</el-checkbox>
                                         </div>
                                     </div>
                                 </el-card>
@@ -238,10 +240,10 @@
                 this.name = userInfo.profile.name;
                 this.username = userInfo.auth.local.username;
                 this.level = userInfo.stats.lvl;
-                this.HP = ~~userInfo.stats.hp;
-                this.EXP = ~~userInfo.stats.exp;
+                this.HP = userInfo.stats.hp;
+                this.EXP = userInfo.stats.exp;
                 this.maxEXP = userInfo.stats.toNextLevel;
-                this.MP = ~~userInfo.stats.mp;
+                this.MP = userInfo.stats.mp;
                 this.maxMP = userInfo.stats.maxMP;
                 this.userAvatarImg = "./src/static/svg/" + userInfo.stats.class + ".svg";
                 this.isLoading = false;
@@ -268,6 +270,7 @@
                                     notes: task.notes,
                                     color: getColorByValue(task.value),
                                     completed: task.completed,
+                                    isDue: task.isDue,
                                     collapseChecklist: task.collapseChecklist,
                                     checklist: task.checklist
                                 });
@@ -286,7 +289,7 @@
                     } else {
                         let that = this;
                         setTimeout(function () {
-                            that.$message.error('同步任务异常，请重试');
+                            that.$message.error('失去同步，请重试');
                         }, 200);
                     }
                 });
@@ -299,10 +302,46 @@
                 this.dialog = true;
             },
             openHabitica() {openBrowser("https://habitica.com");},
-            formatHP(percentage) {return this.HP;},
-            formatEXP(percentage) {return this.EXP;},
-            formatMP(percentage) {return this.MP;},
+            formatHP(percentage) {return ~~this.HP;},
+            formatEXP(percentage) {return ~~this.EXP;},
+            formatMP(percentage) {return ~~this.MP;},
             changeCollapseIcon(id, collapseChecklist) {updateHBTask(id, {"collapseChecklist": collapseChecklist});},
+            scoreTask(id, direction, isAvailable) {
+                if (!isAvailable) {
+                    return;
+                }
+                scoreHBTask(id, direction, async (rsp) => {
+                    if (rsp) {
+                        if (rsp.hp < this.HP) {
+                            await this.$notify({message: '生命：-' + (this.HP - rsp.hp).toFixed(2), position: 'bottom-left', type: 'warning', duration: 2000});
+                        }
+                        if (rsp.lvl > this.level) {
+                            await this.$notify({message: '经验：+' + (this.maxEXP - this.EXP + rsp.exp).toFixed(2), position: 'bottom-left', type: 'success', duration: 2000});
+                        } else if (rsp.exp < this.EXP) {
+                            await this.$notify({message: '经验：-' + (this.EXP - rsp.exp).toFixed(2), position: 'bottom-left', type: 'warning', duration: 2000});
+                        } else if (rsp.exp > this.EXP){
+                            await this.$notify({message: '经验：+' + (rsp.exp - this.EXP).toFixed(2), position: 'bottom-left', type: 'success', duration: 2000});
+                        }
+                        if (rsp.mp < this.MP) {
+                            await this.$notify({message: '魔法：-' + (this.MP - rsp.mp).toFixed(2), position: 'bottom-left', type: 'warning', duration: 2000});
+                        } else if (rsp.mp > this.MP){
+                            await this.$notify({message: '魔法：+' + (rsp.mp - this.MP).toFixed(2), position: 'bottom-left', type: 'success', duration: 2000});
+                        }
+                        this.level = rsp.lvl;
+                        this.HP = rsp.hp;
+                        this.EXP = rsp.exp;
+                        this.MP = rsp.mp;
+                    } else {
+                        let that = this;
+                        setTimeout(function () {
+                            that.$message.error('失去同步，请重试');
+                        }, 200);
+                    }
+                });
+            },
+            scoreCheckList(taskId, checkListId) {
+                console.info("???");
+                scoreHBCheckList(taskId, checkListId);},
             create() {
                 alert("创建："+this.menuVal)
             }
