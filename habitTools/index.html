@@ -180,6 +180,10 @@
         methods: {
             onRegistered() {openBrowser("https://habitica.com/static/home");},
             onLogin() {this.dialog = false;},
+            lossOfSync() {
+                let that = this;
+                setTimeout(function () {that.$message.error('失去同步');}, 200);
+            },
             loginHabitica() {
                 headers["x-api-user"] = this.userForm.user;
                 headers["x-api-key"] = this.userForm.key;
@@ -194,9 +198,7 @@
                     } else {
                         this.dialog = true;
                         let that = this;
-                        setTimeout(function () {
-                            that.$message.error('登录失败');
-                        }, 200);
+                        setTimeout(function () {that.$message.error('登录失败');}, 200);
                     }
                 });
             },
@@ -229,10 +231,7 @@
                         });
                     } else {
                         this.dialog = true;
-                        let that = this;
-                        setTimeout(function () {
-                            that.$message.error('失去同步');
-                        }, 200);
+                        this.lossOfSync();
                     }
                 });
             },
@@ -287,10 +286,7 @@
                             }
                         }
                     } else {
-                        let that = this;
-                        setTimeout(function () {
-                            that.$message.error('失去同步，请重试');
-                        }, 200);
+                        this.lossOfSync();
                     }
                 });
             },
@@ -332,18 +328,22 @@
                         this.EXP = rsp.exp;
                         this.MP = rsp.mp;
                     } else {
-                        let that = this;
-                        setTimeout(function () {
-                            that.$message.error('失去同步，请重试');
-                        }, 200);
+                        this.lossOfSync();
                     }
                 });
             },
-            scoreCheckList(taskId, checkListId) {
-                console.info("???");
-                scoreHBCheckList(taskId, checkListId);},
+            scoreCheckList(taskId, checkListId) {scoreHBCheckList(taskId, checkListId);},
             create() {
-                alert("创建："+this.menuVal)
+                let menuVal = this.menuVal;
+                let type = menuVal === 1 ? "habit" : menuVal === 2 ? "daily" : menuVal === 3 ? "todo" : "";
+                createTask(this.createInput, type, (success) => {
+                    if (success) {
+                        this.createInput = '';
+                    } else {
+                        this.lossOfSync();
+                    }
+                    this.onSynchronousData();
+                });
             }
         },
         mounted() {utools.onPluginEnter(() => this.onSynchronousData());},

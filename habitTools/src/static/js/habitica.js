@@ -53,3 +53,12 @@ function scoreHBTask(id, direction, after) {
 function scoreHBCheckList(taskId, checkListId) {
     axios.post(TASKS_UPDATE_URL + taskId + "/checklist/" + checkListId + "/score", {}, {headers: headers});
 }
+
+function createTask(text, type, after) {
+    axios.post(TASKS_URL, {"text": text, "type": type}, {headers: headers}).then(res => {
+        after(res.data.success);
+    }).catch(err => {
+        console.error("createTask request habitica error: ", err);
+        after(null);
+    });
+}
