@@ -179,7 +179,7 @@
 </div>
 
 </body>
-<script src="./src/static/js/vue-dev.js"></script>
+<script src="./src/static/js/vue.min.js"></script>
 <script src="./src/static/js/element-ui.js"></script>
 <script src="./src/static/js/axios.js"></script>
 <script src="./src/static/js/uTools.js"></script>
@@ -324,13 +324,17 @@
                                 });
                             }
                         }
-                        let startTime = new Date(userInfo.auth.timestamps.loggedin);
-                        let lastCron = new Date(userInfo.lastCron);
-                        startTime.setHours(userInfo.preferences.dayStart);
-                        startTime.setMinutes(0);
-                        startTime.setSeconds(0);
-                        startTime.setMilliseconds(0);
-                        if (new Date() >= startTime && startTime > lastCron) {
+                        let lastStartTime = new Date(userInfo.auth.timestamps.loggedin);
+                        lastStartTime.setHours(userInfo.preferences.dayStart);
+                        lastStartTime.setMinutes(0);
+                        lastStartTime.setSeconds(0);
+                        lastStartTime.setMilliseconds(0);
+                        let todayCron = new Date();
+                        todayCron.setHours(userInfo.preferences.dayStart);
+                        todayCron.setMinutes(0);
+                        todayCron.setSeconds(0);
+                        todayCron.setMilliseconds(0);
+                        if (new Date() >= lastStartTime && new Date(userInfo.lastCron) < todayCron) {
                             for (let i = 0; i < this.dailyList.length; ++i) {
                                 if (this.dailyList[i].yesterDaily && !this.dailyList[i].completed) {
                                     this.undoneList.push(this.dailyList[i]);
