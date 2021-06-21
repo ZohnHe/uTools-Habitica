@@ -1,6 +1,8 @@
 const USER_INFO_URL = "https://habitica.com/api/v3/user";
 const TASKS_URL = "https://habitica.com/api/v3/tasks/user";
 const TASKS_UPDATE_URL = "https://habitica.com/api/v3/tasks/";
+const CRON_URL = "https://habitica.com/api/v3/cron";
+const BULK_SCORE = "https://habitica.com/api/v4/tasks/bulk-score";
 var headers = {'x-client': "ab029ac0-b53c-451b-829b-1138d283a40c-habitTools", 'x-api-user': '', 'x-api-key': ''};
 
 function getHBUserInfo(after) {
@@ -59,6 +61,18 @@ function createTask(text, type, after) {
         after(res.data.success);
     }).catch(err => {
         console.error("createTask request habitica error: ", err);
+        after(null);
+    });
+}
+function bulkUpScore(body) {
+    axios.post(BULK_SCORE, body, {headers: headers});
+}
+
+function cronTask(after) {
+    axios.post(CRON_URL, null, {headers: headers}).then(res => {
+        after(res.data.success);
+    }).catch(err => {
+        console.error("cronTask request habitica error: ", err);
         after(null);
     });
 }

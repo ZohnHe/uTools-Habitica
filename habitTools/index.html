@@ -58,11 +58,13 @@
                                 <el-card shadow="hover" :body-style="{color:item.color}">
                                     <el-row :gutter="18">
                                         <el-col :span="2" class="task-icon" :class="[item.up ? '' : 'task-icon-disable']">
-                                            <i class="el-icon-circle-plus-outline" @click="scoreTask(item.id, 'up', item.up)"></i>
+                                            <i class="el-icon-circle-plus-outline" @click="scoreTask(item.id, 'up', item.up);item.counterUp++;"></i>
                                         </el-col>
-                                        <el-col :span="20">{{item.text}}<p>{{item.notes}}</p></el-col>
+                                        <el-col :span="20">{{item.text}}<p>{{item.notes}}</p>
+                                            <p class="count-task">+{{item.counterUp}}<el-divider direction="vertical"></el-divider>-{{item.counterDown}}</p>
+                                        </el-col>
                                         <el-col :span="2" class="task-icon" :class="[item.down ? '' : 'task-icon-disable']">
-                                            <i class="el-icon-remove-outline" @click="scoreTask(item.id, 'down', item.down)"></i>
+                                            <i class="el-icon-remove-outline" @click="scoreTask(item.id, 'down', item.down);item.counterDown++;"></i>
                                         </el-col>
                                     </el-row>
                                 </el-card>
@@ -98,7 +100,7 @@
                         <div id="todo_list" v-show="menuVal===3">
                             <template v-for="item in todoList">
                                 <el-card shadow="hover" :body-style="{color:item.color}">
-                                    <el-row :gutter="18" :class="{'task-completed': item.completed }">
+                                    <el-row :gutter="18" :class="{'task-completed': item.completed}">
                                         <el-col :span="2" class="task-icon">
                                             <i v-if="item.completed" class="el-icon-circle-check" @click="item.completed=!item.completed;scoreTask(item.id, 'down', true);"></i>
                                             <div v-else class="todo-circle" @click="item.completed=!item.completed;scoreTask(item.id, 'up', true);"></div>
@@ -146,6 +148,34 @@
             </el-form>
         </div>
     </el-drawer>
+    <el-dialog title="勾选你昨天做过的任务" :visible.sync="undoneList.length>0" width="50%" :before-close="doNone" center :show-close="false">
+        <template v-for="item in undoneList">
+            <el-card shadow="hover" :body-style="{color:item.color}">
+                <el-row :gutter="18" :class="{'task-completed': item.completed}">
+                    <el-col :span="2" class="task-icon">
+                        <div v-if="item.completed" >
+                            <i class="el-icon-circle-check" @click="item.completed=!item.completed"></i>
+                        </div>
+                        <div v-else class="todo-circle" @click="item.completed=!item.completed"></div>
+                    </el-col>
+                    <el-col :span="20">{{item.text}}<p>{{item.notes}}</p></el-col>
+                    <el-col :span="2" class="task-icon" v-if="item.checklist.length > 0">
+                        <i :class="[item.collapseChecklist ? 'el-icon-arrow-left' : 'el-icon-arrow-down']"
+                           @click="item.collapseChecklist=!item.collapseChecklist;changeCollapseIcon(item.id,item.collapseChecklist);"></i>
+                    </el-col>
+                </el-row>
+                <div v-if="item.checklist.length > 0 && !item.collapseChecklist">
+                    <el-divider class="checklist-line"></el-divider>
+                    <div v-for="ck in item.checklist" :key="ck.id" class="checklist">
+                        <el-checkbox v-model="ck.completed" :style="{color:item.color}" @change="scoreCheckList(item.id,ck.id)">{{ck.text}}</el-checkbox>
+                    </div>
+                </div>
+            </el-card>
+        </template>
+        <span slot="footer" class="dialog-footer">
+            <el-button type="primary" @click="completedYesterday" class="habitica-btn">开始新的一天</el-button>
+        </span>
+    </el-dialog>
 </div>
 
 </body>
@@ -175,11 +205,13 @@
             habitList: [],
             dailyList: [],
             todoList: [],
+            undoneList: [],
             createInput: ''
         },
         methods: {
             onRegistered() {openBrowser("https://habitica.com/static/home");},
             onLogin() {this.dialog = false;},
+            doNone() {return false;},
             lossOfSync() {
                 let that = this;
                 setTimeout(function () {that.$message.error('失去同步');}, 200);
@@ -246,11 +278,15 @@
                 this.maxMP = userInfo.stats.maxMP;
                 this.userAvatarImg = "./src/static/svg/" + userInfo.stats.class + ".svg";
                 this.isLoading = false;
+                if (userInfo.stats.hp === 0) {
+                    this.openHabitica();
+                }
                 getHBHabit((tasks) =>{
                     if (tasks) {
                         this.habitList = [];
                         this.dailyList = [];
                         this.todoList = [];
+                        this.undoneList = [];
                         for (let i = 0; i < tasks.length ; ++i) {
                             let task = tasks[i];
                             if (task.type === "habit") {
@@ -260,7 +296,9 @@
                                     notes: task.notes,
                                     color: getColorByValue(task.value),
                                     up: task.up,
-                                    down: task.down
+                                    down: task.down,
+                                    counterUp: task.counterUp,
+                                    counterDown: task.counterDown
                                 });
                             }else if (task.type === "daily") {
                                 this.dailyList.push({
@@ -271,7 +309,8 @@
                                     completed: task.completed,
                                     isDue: task.isDue,
                                     collapseChecklist: task.collapseChecklist,
-                                    checklist: task.checklist
+                                    checklist: task.checklist,
+                                    yesterDaily: task.yesterDaily,
                                 });
                             }else if (task.type === "todo") {
                                 this.todoList.push({
@@ -283,6 +322,19 @@
                                     collapseChecklist: task.collapseChecklist,
                                     checklist: task.checklist
                                 });
+                            }
+                        }
+                        let startTime = new Date(userInfo.auth.timestamps.loggedin);
+                        let lastCron = new Date(userInfo.lastCron);
+                        startTime.setHours(userInfo.preferences.dayStart);
+                        startTime.setMinutes(0);
+                        startTime.setSeconds(0);
+                        startTime.setMilliseconds(0);
+                        if (new Date() >= startTime && startTime > lastCron) {
+                            for (let i = 0; i < this.dailyList.length; ++i) {
+                                if (this.dailyList[i].yesterDaily && !this.dailyList[i].completed) {
+                                    this.undoneList.push(this.dailyList[i]);
+                                }
                             }
                         }
                     } else {
@@ -303,9 +355,7 @@
             formatMP(percentage) {return ~~this.MP;},
             changeCollapseIcon(id, collapseChecklist) {updateHBTask(id, {"collapseChecklist": collapseChecklist});},
             scoreTask(id, direction, isAvailable) {
-                if (!isAvailable) {
-                    return;
-                }
+                if (!isAvailable) {return;}
                 scoreHBTask(id, direction, async (rsp) => {
                     if (rsp) {
                         if (rsp.hp < this.HP) {
@@ -313,6 +363,7 @@
                         }
                         if (rsp.lvl > this.level) {
                             await this.$notify({message: '经验：+' + (this.maxEXP - this.EXP + rsp.exp).toFixed(2), position: 'bottom-left', type: 'success', duration: 2000});
+                            await this.$notify({message: '升级了！', position: 'bottom-left', type: 'success', duration: 2000});
                         } else if (rsp.exp < this.EXP) {
                             await this.$notify({message: '经验：-' + (this.EXP - rsp.exp).toFixed(2), position: 'bottom-left', type: 'warning', duration: 2000});
                         } else if (rsp.exp > this.EXP){
@@ -334,8 +385,7 @@
             },
             scoreCheckList(taskId, checkListId) {scoreHBCheckList(taskId, checkListId);},
             create() {
-                let menuVal = this.menuVal;
-                let type = menuVal === 1 ? "habit" : menuVal === 2 ? "daily" : menuVal === 3 ? "todo" : "";
+                let type = this.menuVal === 1 ? "habit" : this.menuVal === 2 ? "daily" : this.menuVal === 3 ? "todo" : "";
                 createTask(this.createInput, type, (success) => {
                     if (success) {
                         this.createInput = '';
@@ -343,6 +393,26 @@
                         this.lossOfSync();
                     }
                     this.onSynchronousData();
+                });
+            },
+            completedYesterday() {
+                let doneList = [];
+                for (let i = 0; i < this.undoneList.length; ++i) {
+                    let task = this.undoneList[i];
+                    if (task.completed) {
+                        doneList.push({id: task.id, direction: "up"});
+                    }
+                }
+                if (doneList.length > 0) {
+                    bulkUpScore(doneList);
+                }
+                cronTask((success) => {
+                    if (success) {
+                        this.onSynchronousData();
+                    } else {
+                        this.lossOfSync();
+                    }
+                    this.undoneList = [];
                 });
             }
         },

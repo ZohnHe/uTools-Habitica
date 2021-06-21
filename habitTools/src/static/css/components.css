@@ -131,6 +131,10 @@ html,body,#app,.el-container,.full-screen{
     height: 19px;
     margin: 5px auto;
 }
+.count-task {
+    float: right;
+    color: #a5a1ac;
+}
 .el-input {
     top: 20%;
 }
@@ -150,4 +154,11 @@ html,body,#app,.el-container,.full-screen{
 }
 .el-notification {
     width: 200px;
+}
+.habitica-btn {
+    background-color: #4F2A93;
+    border-color: #432874;
+}
+.el-dialog {
+    border-radius: 8px;
 }
