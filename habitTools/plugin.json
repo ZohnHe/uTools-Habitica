@@ -1,6 +1,6 @@
 {
 	"pluginName": "habitTools",
-	"description": "习惯养成及生产力应用 ———— Habitica（的第三方插件）",
+	"description": "习惯养成及生产力应用 —— Habitica（的第三方插件）",
 	"main": "index.html",
     "version": "1.0.0",
     "author": "Zohn",
