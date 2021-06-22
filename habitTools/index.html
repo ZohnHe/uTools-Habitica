@@ -336,7 +336,7 @@
                         todayCron.setMilliseconds(0);
                         if (new Date() >= lastStartTime && new Date(userInfo.lastCron) < todayCron) {
                             for (let i = 0; i < this.dailyList.length; ++i) {
-                                if (this.dailyList[i].yesterDaily && !this.dailyList[i].completed) {
+                                if (this.dailyList[i].isDue && !this.dailyList[i].completed) {
                                     this.undoneList.push(this.dailyList[i]);
                                 }
                             }
