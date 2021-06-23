@@ -272,16 +272,19 @@
                 this.name = userInfo.profile.name;
                 this.username = userInfo.auth.local.username;
                 this.level = userInfo.stats.lvl;
-                this.HP = userInfo.stats.hp;
+                let hp = userInfo.stats.hp;
+                if (hp <= 0) {
+                    this.HP = 0;
+                    this.openHabitica();
+                } else {
+                    this.HP = hp;
+                }
                 this.EXP = userInfo.stats.exp;
                 this.maxEXP = userInfo.stats.toNextLevel;
                 this.MP = userInfo.stats.mp;
                 this.maxMP = userInfo.stats.maxMP;
                 this.userAvatarImg = "./src/static/svg/" + userInfo.stats.class + ".svg";
                 this.isLoading = false;
-                if (userInfo.stats.hp === 0) {
-                    this.openHabitica();
-                }
                 getHBHabit((tasks) =>{
                     if (tasks) {
                         this.habitList = [];
@@ -363,8 +366,15 @@
                 if (!isAvailable) {return;}
                 scoreHBTask(id, direction, async (rsp) => {
                     if (rsp) {
-                        if (rsp.hp < this.HP) {
+                        let hp = rsp.hp;
+                        if (hp < this.HP) {
                             await this.$notify({message: '生命：-' + (this.HP - rsp.hp).toFixed(2), position: 'bottom-left', type: 'warning', duration: 2000});
+                        }
+                        if (hp <= 0) {
+                            this.HP = 0;
+                            this.openHabitica();
+                        } else {
+                            this.HP = hp;
                         }
                         if (rsp.lvl > this.level) {
                             await this.$notify({message: '经验：+' + (this.maxEXP - this.EXP + rsp.exp).toFixed(2), position: 'bottom-left', type: 'success', duration: 2000});
@@ -380,7 +390,6 @@
                             await this.$notify({message: '魔法：+' + (rsp.mp - this.MP).toFixed(2), position: 'bottom-left', type: 'success', duration: 2000});
                         }
                         this.level = rsp.lvl;
-                        this.HP = rsp.hp;
                         this.EXP = rsp.exp;
                         this.MP = rsp.mp;
                     } else {
