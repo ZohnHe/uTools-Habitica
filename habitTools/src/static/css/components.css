@@ -86,6 +86,9 @@ html,body,#app,.el-container,.full-screen{
 .el-menu-item {
     color: #432874;
 }
+.el-menu-item.is-active {
+    color: #d46b08;
+}
 .el-link.el-link--default {
     color: #432874;
 }
@@ -99,6 +102,9 @@ html,body,#app,.el-container,.full-screen{
 }
 .el-main::-webkit-scrollbar {
     width: 0 !important
+}
+.el-card :hover {
+    background-color: #F7F7F7;
 }
 #task_list {
     font-size: 16px;
