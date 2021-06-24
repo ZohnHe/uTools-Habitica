@@ -3,6 +3,7 @@ html,body,#app,.el-container,.full-screen{
     height: 100%;
     padding: 0;
     margin: 0;
+    word-wrap: break-word;
 }
 /*加载图标*/
 #start_image {
