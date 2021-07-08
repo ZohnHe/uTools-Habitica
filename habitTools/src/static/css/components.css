@@ -85,13 +85,27 @@ html,body,#app,.el-container,.full-screen{
     border-right: none;
 }
 .el-menu-item {
-    color: #432874;
-}
-.el-menu-item.is-active {
-    color: #d46b08;
+    color: #909399;
 }
 .el-link.el-link--default {
     color: #432874;
+}
+.el-menu-item.is-active {
+    color: #432874;
+}
+#class-tag{
+    position: fixed;
+    bottom: 20px;
+    width: 180px;
+}
+.el-tag--plain.el-tag--info {
+    background-color: #EEF1F6;
+    cursor: pointer;
+}
+.tag-selected {
+    background-color: #FFFFFF !important;
+    border-color: #432874 !important;
+    color: #4F2A93 !important;
 }
 /*右侧*/
 #content {
@@ -144,6 +158,9 @@ html,body,#app,.el-container,.full-screen{
 }
 .el-input {
     top: 20%;
+}
+.el-input__inner:focus {
+    border-color: #4F2A93;
 }
 .checklist-line {
     margin: 20px 0;

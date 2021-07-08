@@ -26,7 +26,7 @@ new Vue({
     data: {
         isLoading: true,
         dialog: false,
-        userForm: {user: '', key: ''},
+        userForm: {user: "", key: ""},
         userAvatarImg: "",
         name: "",
         username: "",
@@ -37,11 +37,16 @@ new Vue({
         MP: 0,
         maxMP: 0,
         menuVal: 1,
+        selectTag: 0,
+        conservedTag: [0,4,7],
+        dynamicTags: [{index: 1, name: "全 部"}, {index: 2, name: "偶 尔"}, {index: 3, name: "经 常"}],
         habitList: [],
         dailyList: [],
         todoList: [],
         undoneList: [],
-        createInput: ''
+        showTaskList: [],
+        createInput: "",
+        requestLock: false
     },
     methods: {
         onRegistered() {openBrowser("https://habitica.com/static/home");},
@@ -64,11 +69,10 @@ new Vue({
             getHBUserInfo((success, data) => {
                 if (success) {
                     this.refreshData(data);
-                    saveToDB(DB_KEY_USER_INFO, this.userForm.key + DB_KEY_SPLIT + this.userForm.user);
+                    saveToDB(DB_KEY_USER_INFO, window.btoa(this.userForm.key + DB_KEY_SPLIT + this.userForm.user));
                     this.userForm.key = '';
                     this.userForm.user = '';
                     this.isLoading = false;
-                    this.menuVal = 1;
                 } else {
                     this.dialog = true;
                     this.showErrMsg(data === 429 ? '登录频繁，休息一会' : '登录失败，' + data);
@@ -81,7 +85,7 @@ new Vue({
                 if (!userInfo) {
                     return true;
                 }
-                let values = userInfo.split(DB_KEY_SPLIT);
+                let values = window.atob(userInfo).split(DB_KEY_SPLIT);
                 headers["x-api-user"] = values[1];
                 headers["x-api-key"] = values[0];
             }
@@ -131,6 +135,7 @@ new Vue({
                 this.dailyList = [];
                 this.todoList = [];
                 this.undoneList = [];
+                let now = new Date();
                 for (let i = 0; i < tasks.length ; ++i) {
                     let task = tasks[i];
                     if (task.type === "habit") {
@@ -138,6 +143,7 @@ new Vue({
                             id: task.id,
                             text: task.text,
                             notes: task.notes,
+                            value: task.value,
                             color: getColorByValue(task.value),
                             up: task.up,
                             down: task.down,
@@ -152,6 +158,8 @@ new Vue({
                             color: getColorByValue(task.value),
                             completed: task.completed,
                             isDue: task.isDue,
+                            repeat: task.repeat,
+                            everyX: task.everyX,
                             collapseChecklist: task.collapseChecklist,
                             checklist: task.checklist,
                             yesterDaily: task.yesterDaily,
@@ -164,24 +172,40 @@ new Vue({
                             color: getColorByValue(task.value),
                             completed : task.completed,
                             collapseChecklist: task.collapseChecklist,
-                            checklist: task.checklist
+                            checklist: task.checklist,
+                            date: getDateReminder(now, task.date)
                         });
                     }
                 }
-                let lastStartTime = new Date(userInfo.auth.timestamps.loggedin);
-                lastStartTime.setHours(userInfo.preferences.dayStart);
-                lastStartTime.setMinutes(0);
-                lastStartTime.setSeconds(0);
-                lastStartTime.setMilliseconds(0);
+                this.setDefaultTag(0);
+                let lastCron = new Date(userInfo.lastCron);
                 let todayCron = new Date();
                 todayCron.setHours(userInfo.preferences.dayStart);
                 todayCron.setMinutes(0);
                 todayCron.setSeconds(0);
                 todayCron.setMilliseconds(0);
-                if (new Date() >= lastStartTime && new Date(userInfo.lastCron) < todayCron) {
+                let shouldCron = false;
+                if (lastCron < todayCron) {
+                    //上次结算时间 < 今天结算时间
+                    if ((now.getTime() - lastCron.getTime()) / 1000 / 60 / 60 < 24) {
+                        //当前时间 - 上次结算时间 < 24小时
+                        if (todayCron <= now) {
+                            // 当前时间大于等于今天结算时间
+                            shouldCron = true;
+                        }
+                    } else {
+                        //大于24小时
+                        shouldCron = true;
+                    }
+                }
+                if (shouldCron) {
+                    const weekDay = ["su", "m", "t", "w", "th", "f", "s"];
+                    let index = weekDay[now.getDay() - 1];
                     for (let i = 0; i < this.dailyList.length; ++i) {
-                        if (this.dailyList[i].isDue && !this.dailyList[i].completed) {
-                            this.undoneList.push(this.dailyList[i]);
+                        let daily = this.dailyList[i];
+                        if ((daily.everyX === 1 && daily.repeat[index] && !daily.completed) ||
+                            (daily.everyX > 1 && daily.isDue && !daily.completed)) {
+                            this.undoneList.push(daily);
                         }
                     }
                 }
@@ -193,6 +217,7 @@ new Vue({
             headers["x-api-user"] = '';
             headers["x-api-key"] = '';
             delInDB(DB_KEY_USER_INFO);
+            delInDB(DB_KEY_TAG_SETTING);
             this.dialog = true;
         },
         openHabitica() {openBrowser("https://habitica.com");},
@@ -200,22 +225,34 @@ new Vue({
         formatEXP(percentage) {return ~~this.EXP;},
         formatMP(percentage) {return ~~this.MP;},
         changeCollapseIcon(id, collapseChecklist) {updateHBTask(id, {"collapseChecklist": collapseChecklist});},
-        scoreTask(task, direction, menuVal) {
-            if (menuVal === 1) {
-                if ((direction === 'up' && !task.up) || (direction === 'down' && !task.down)) {
-                    return;
-                }
+        scoreTask(task, direction) {
+            if (this.requestLock) {
+                return;
+            }
+            this.requestLock = true;
+            let menuVal = this.menuVal;
+            if (menuVal === 1 && ((direction === 'up' && !task.up) || (direction === 'down' && !task.down))) {
+                return;
             }
             scoreHBTask(task.id, direction, async (success, data) => {
                 if (success) {
+                    let selectTag = this.selectTag;
                     if (menuVal === 1) {
                         direction === 'up' ? task.counterUp++ : task.counterDown++;
+                        task.value += data.delta;
+                        task.color = getColorByValue(task.value);
+                        if ((selectTag === 2 && task.value >= 1) || (selectTag === 3 && task.value < 1)) {
+                            this.selectTag = 0;
+                        }
                     } else {
                         task.completed = !task.completed;
+                        task.color = getColorByValue(task.value);
+                        this.selectTag = 0;
                     }
+
                     let hp = data.hp;
                     if (hp < this.HP) {
-                        await this.$notify({message: '生命：-' + (this.HP - hp).toFixed(2), position: 'bottom-left', type: 'warning', duration: 2000});
+                        await this.$notify({message: '生命：-' + (this.HP - hp).toFixed(2), position: 'bottom-left', type: 'warning', duration: 2000, offset:70});
                     }
                     if (hp <= 0) {
                         this.HP = 0;
@@ -224,17 +261,17 @@ new Vue({
                         this.HP = hp;
                     }
                     if (data.lvl > this.level) {
-                        await this.$notify({message: '经验：+' + (this.maxEXP - this.EXP + data.exp).toFixed(2), position: 'bottom-left', type: 'success', duration: 2000});
-                        await this.$notify({message: '升级了！', position: 'bottom-left', type: 'success', duration: 2000});
+                        await this.$notify({message: '经验：+' + (this.maxEXP - this.EXP + data.exp).toFixed(2), position: 'bottom-left', type: 'success', duration: 2000, offset:70});
+                        await this.$notify({message: '升级了！', position: 'bottom-left', type: 'success', duration: 2000, offset:70});
                     } else if (data.exp < this.EXP) {
-                        await this.$notify({message: '经验：-' + (this.EXP - data.exp).toFixed(2), position: 'bottom-left', type: 'warning', duration: 2000});
+                        await this.$notify({message: '经验：-' + (this.EXP - data.exp).toFixed(2), position: 'bottom-left', type: 'warning', duration: 2000, offset:70});
                     } else if (data.exp > this.EXP){
-                        await this.$notify({message: '经验：+' + (data.exp - this.EXP).toFixed(2), position: 'bottom-left', type: 'success', duration: 2000});
+                        await this.$notify({message: '经验：+' + (data.exp - this.EXP).toFixed(2), position: 'bottom-left', type: 'success', duration: 2000, offset:70});
                     }
                     if (data.mp < this.MP) {
-                        await this.$notify({message: '魔法：-' + (this.MP - data.mp).toFixed(2), position: 'bottom-left', type: 'warning', duration: 2000});
+                        await this.$notify({message: '魔法：-' + (this.MP - data.mp).toFixed(2), position: 'bottom-left', type: 'warning', duration: 2000, offset:70});
                     } else if (data.mp > this.MP){
-                        await this.$notify({message: '魔法：+' + (data.mp - this.MP).toFixed(2), position: 'bottom-left', type: 'success', duration: 2000});
+                        await this.$notify({message: '魔法：+' + (data.mp - this.MP).toFixed(2), position: 'bottom-left', type: 'success', duration: 2000, offset:70});
                     }
                     this.level = data.lvl;
                     this.EXP = data.exp;
@@ -242,6 +279,7 @@ new Vue({
                 } else {
                     this.showErrMsg(data === 429 ? '操作频繁，休息一会' : '失去同步，' + data);
                 }
+                this.requestLock = false;
             });
         },
         scoreCheckList(taskId, checkListId) {scoreHBCheckList(taskId, checkListId);},
@@ -265,16 +303,39 @@ new Vue({
                 }
             }
             if (doneList.length > 0) {
-                bulkUpScore(doneList);
+                bulkUpScore(doneList, (success, data) => {
+                    if (success) {
+                        this.undoneList = [];
+                        cronTask((cronSuccess) => {
+                            cronSuccess ? this.onSynchronousData() : this.openHabitica();
+                        });
+                    } else {
+                        this.showErrMsg('失去同步，' + data);
+                    }
+                });
+            } else {
+                cronTask((success) => {
+                    success ? this.onSynchronousData() : this.openHabitica();
+                });
             }
-            cronTask((success) => {
-                if (success) {
-                    this.undoneList = [];
-                    this.onSynchronousData();
-                } else {
-                    this.showErrMsg('失去同步');
+        },
+        setDefaultTag(reset) {
+            if (this.conservedTag[0] === 0) {
+                let tags = getFromDB(DB_KEY_TAG_SETTING);
+                if (!tags) {
+                    this.selectTag = 1;
+                    this.conservedTag[0] = 1;
+                    return;
                 }
-            });
+                let stringArr = tags.split(DB_KEY_SPLIT);
+                for (let i = 0; i < stringArr.length; ++i) {
+                    this.conservedTag[i] = parseInt(stringArr[i]);
+                }
+            }else if (reset === 0) {
+                this.selectTag = 0;
+                return;
+            }
+            this.selectTag = this.conservedTag[this.menuVal - 1];
         }
     },
     mounted() {utools.onPluginEnter(() => this.onSynchronousData());},
@@ -291,6 +352,87 @@ new Vue({
             if (!value) return '';
             if (value.length < 8) return value;
             return value.slice(0, 7) + '...';
+        }
+    },
+    watch: {
+        menuVal: function (newVal, oldVal) {
+            if (newVal === 1) {
+                this.dynamicTags = [{index: 1, name: "全 部"}, {index: 2, name: "偶 尔"}, {index: 3, name: "经 常"}];
+            }else if (newVal === 2) {
+                this.dynamicTags = [{index: 4, name: "全 部"}, {index: 5, name: "待 办"}, {index: 6, name: "已 办"}];
+            }else if (newVal === 3) {
+                this.dynamicTags = [{index: 7, name: "进 行"}, {index: 8, name: "限 时"}, {index: 9, name: "已 办"}];
+            }
+            this.setDefaultTag();
+        },
+        selectTag: function (newVal, oldVal) {
+            if (newVal === 0) {
+                this.selectTag = newVal = this.conservedTag[this.menuVal - 1];
+                return;
+            }
+            this.showTaskList = [];
+            let oldArr = this.conservedTag.join(DB_KEY_SPLIT);
+            if (newVal === 1) {
+                this.showTaskList = this.habitList;
+                this.conservedTag[0] = newVal;
+            } else if (newVal === 2 || newVal === 3) {
+                let list = this.habitList;
+                for (let i = 0; i < list.length; ++i) {
+                    if ((newVal === 2 && list[i].value < 1) || (newVal === 3 && list[i].value >= 1)) {
+                        this.showTaskList.push(list[i]);
+                    }
+                }
+                this.conservedTag[0] = newVal;
+            } else if (newVal === 4) {
+                this.showTaskList = this.dailyList;
+                this.conservedTag[1] = newVal;
+            } else if (newVal === 5 || newVal === 6) {
+                let list = this.dailyList;
+                for (let i = 0; i < list.length; ++i) {
+                    let isUndo = list[i].completed || !list[i].isDue;
+                    if ((newVal === 5 && !isUndo) || (newVal === 6 && isUndo)) {
+                        this.showTaskList.push(list[i]);
+                    }
+                }
+                this.conservedTag[1] = newVal;
+            } else if (newVal === 7 || newVal === 8) {
+                let list = this.todoList;
+                for (let i = 0; i < list.length; ++i) {
+                    if ((newVal === 7 && !list[i].completed) || (newVal === 8 && list[i].date)) {
+                        this.showTaskList.push(list[i]);
+                    }
+                }
+                this.conservedTag[2] = newVal;
+            } else if (newVal === 9) {
+                getHBCompletedTask((tasks) => {
+                    if (tasks == null) {
+                        this.showErrMsg('失去同步');
+                        return;
+                    }
+                    let now = new Date();
+                    for (let i = 0; i < tasks.length; ++i) {
+                        let task = tasks[i];
+                        this.showTaskList.push({
+                            id: task.id,
+                            text: task.text,
+                            notes: task.notes,
+                            color: getColorByValue(task.value),
+                            completed: task.completed,
+                            collapseChecklist: task.collapseChecklist,
+                            checklist: task.checklist,
+                            date: getDateReminder(now, task.date)
+                        });
+                    }
+                    this.conservedTag[2] = newVal;
+                });
+            }
+            setTimeout(() => {
+                let saveArr = this.conservedTag.join(DB_KEY_SPLIT);
+                if (saveArr !== oldArr) {
+                    let rev = getRevFromDB(DB_KEY_TAG_SETTING);
+                    saveToDB(DB_KEY_TAG_SETTING, saveArr, rev);
+                }
+            }, 1);
         }
     }
 });

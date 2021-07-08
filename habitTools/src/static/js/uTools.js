@@ -1,18 +1,28 @@
 const DB_KEY_USER_INFO = "USER_INFO";
+const DB_KEY_TAG_SETTING = "TAG_SETTING";
 const DB_KEY_SPLIT = "@";
 
 function getFromDB(key) {
-    let valueJson = utools.db.get(key);
-    if (!valueJson) {
+    let value = utools.db.get(key);
+    if (!value) {
         return null;
     }
-    let value = valueJson.data;
-    return window.atob(value);
+    return value.data;
+}
+function getRevFromDB(key) {
+    let value = utools.db.get(key);
+    if (!value) {
+        return null;
+    }
+    return value._rev;
 }
 
-function saveToDB(key, value) {
-    let sign = window.btoa(value);
-    return utools.db.put({_id: key, data: sign});
+function saveToDB(key, value, rev) {
+    if (rev) {
+        return utools.db.put({_id: key, data: value, _rev: rev});
+    } else {
+        return utools.db.put({_id: key, data: value});
+    }
 }
 
 function delInDB(key) {
