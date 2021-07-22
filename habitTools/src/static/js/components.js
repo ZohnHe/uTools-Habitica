@@ -208,13 +208,13 @@ new Vue({
                             this.undoneList.push(daily);
                         }
                     }
-                    if (this.undoneList.size() <= 0) {
+                    if (this.undoneList.length <= 0) {
                         cronTask((success) => {
                             success ? this.onSynchronousData() : this.openHabitica();
                         });
                     }
                 }
-                this.$message({message: '同步成功', center: true, type: 'success', duration: 1000, offset: 70});
+                this.$message({message: '同步完成', center: true, type: 'success', duration: 1000, offset: 70});
             });
         },
         onLogout() {
