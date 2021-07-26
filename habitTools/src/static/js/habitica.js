@@ -41,8 +41,13 @@ function getColorByValue(value) {
     }
 }
 
-function updateHBTask(id, body) {
-    axios.put(TASKS_UPDATE_URL + id, body, {headers: headers});
+function updateHBTask(id, body, doAfter) {
+    axios.put(TASKS_UPDATE_URL + id, body, {headers: headers}).then(rsp => {
+        rsp.data.success ? doAfter(true, rsp.data.data) : doAfter(false, rsp.data.error);
+    }).catch(err => {
+        console.error("updateHBTask request habitica error: ", err);
+        doAfter(false, err.response.status);
+    });
 }
 
 function scoreHBTask(id, direction, doAfter) {
@@ -105,4 +110,13 @@ function getDateReminder(now, date) {
     } else {
         return "期限为今日";
     }
+}
+
+function deleteHBTask(id, doAfter) {
+    axios.delete(TASKS_UPDATE_URL + id, {headers: headers}).then(rsp => {
+        rsp.data.success ? doAfter(true, rsp.data.data) : doAfter(false, rsp.data.error);
+    }).catch(err => {
+        console.error("deleteHBTask request habitica error: ", err);
+        doAfter(false, err.response.status);
+    });
 }
