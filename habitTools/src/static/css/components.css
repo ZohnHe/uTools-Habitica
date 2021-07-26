@@ -5,6 +5,12 @@ html,body,#app,.el-container,.full-screen{
     margin: 0;
     word-wrap: break-word;
 }
+.full-width {
+    width: 100% !important;
+}
+.common-color {
+    color: #606266;
+}
 /*加载图标*/
 #start_image {
     width: 100px;
@@ -29,9 +35,6 @@ html,body,#app,.el-container,.full-screen{
     margin: 0 auto;
     position: relative;
     top: 33%;
-}
-.loginBtn {
-    width: 100%;
 }
 /*任务界面*/
 .el-header {
@@ -77,6 +80,10 @@ html,body,#app,.el-container,.full-screen{
 .el-button--text {
     color: #432874;
     width: 60px;
+}
+.el-button--primary,.el-button--primary:focus, .el-button--primary:hover {
+    background-color: #4F2A93;
+    border-color: #432874;
 }
 .el-popover {
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .5);
@@ -139,7 +146,7 @@ html,body,#app,.el-container,.full-screen{
 .task-icon-disable {
     color: #C3C0C8;
 }
-.task-icon-disable :hover {
+#habit_list .task-icon-disable :hover {
     cursor: not-allowed;
 }
 .task-completed {
@@ -156,10 +163,10 @@ html,body,#app,.el-container,.full-screen{
     float: right;
     color: #a5a1ac;
 }
-.el-input {
+#createTaskInput {
     top: 20%;
 }
-.el-input__inner:focus {
+.el-input__inner:focus,.el-textarea__inner:focus {
     border-color: #4F2A93;
 }
 .checklist-line {
@@ -185,4 +192,40 @@ html,body,#app,.el-container,.full-screen{
 }
 .el-dialog {
     border-radius: 8px;
+}
+/*编辑*/
+#taskDetail .el-drawer__body {
+    padding-right: 20px;
+    overflow: auto;
+}
+#taskDetail_Submit {
+    position: absolute;
+    right: 20px;
+    top: 9px;
+}
+#taskDetail {
+    color: #4F2A93;
+}
+.selected {
+    color: #4F2A93 !important;
+}
+.el-select .el-input.is-focus .el-input__inner,.el-select .el-input__inner:focus{
+    border-color: #4F2A93;
+}
+.el-input-number__decrease:hover:not(.is-disabled)~.el-input .el-input__inner:not(.is-disabled), .el-input-number__increase:hover:not(.is-disabled)~.el-input .el-input__inner:not(.is-disabled) {
+    border-color: #4F2A93;
+}
+#counterSetBtn {
+    text-align: center;
+    margin-bottom: 20px;
+}
+#checkListSetItem .el-input {
+    display: block;
+    line-height: 10px;
+}
+#checkListSetItem .el-input__inner {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-top: none;
 }
