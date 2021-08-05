@@ -229,3 +229,20 @@ html,body,#app,.el-container,.full-screen{
     border-right: none;
     border-top: none;
 }
+.party-quest-join-btn {
+    margin-top: 1.5em;
+    background-color: #4F2A93;
+    border-color: #432874;
+    color: #FFFFFF;
+}
+.party-quest-join-btn:hover,.party-quest-join-btn:focus,.party-quest-join-btn *:hover{
+    background-color: #FFFFFF;
+    border-color: #432874;
+    color: #432874;
+}
+.system-message {
+    margin: 4px 0 0 0;
+    font: 11px Extra Small;
+    letter-spacing: 0.5px;
+    color: #E83E8C;
+}
