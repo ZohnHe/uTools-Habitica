@@ -35,6 +35,7 @@
                     <el-menu-item index="1" @click="menuVal=1"><i class="el-icon-time"></i><span slot="title">习惯</span></el-menu-item>
                     <el-menu-item index="2" @click="menuVal=2"><i class="el-icon-sunrise-1"></i><span slot="title">每日任务</span></el-menu-item>
                     <el-menu-item index="3" @click="menuVal=3"><i class="el-icon-finished"></i><span slot="title">待办事项</span></el-menu-item>
+                    <el-menu-item index="4" @click="openPartyPage"><i :class="[menuVal===4 ? 'el-icon-refresh' : 'el-icon-chat-line-round']"></i><span slot="title">{{menuVal===4?'刷新队伍':'队伍'}}</span></el-menu-item>
                 </el-menu>
                 <div id="class-tag">
                     <el-row type="flex" class="row-bg" justify="space-around">
@@ -127,10 +128,48 @@
                                 </el-card>
                             </template>
                         </div>
+                        <div id="party_list" v-show="menuVal===4">
+                            <template v-if="this.partyId">
+                                <el-timeline>
+                                    <el-timeline-item placement="top" v-if="partyQuest.key" timestamp="队伍副本">
+                                        <el-card>
+                                            <el-row :gutter="18" style="margin-top: -1em">
+                                                <el-col :span="18">
+                                                    <h3>副本 {{partyQuest.key}} {{partyQuest.active ?  '进行中' : '开启邀请'}}</h3>
+                                                    <p v-if="partyQuest.active">{{partyQuest.haveHP?'BOSS剩余血量':'已收集'}} ：{{partyQuest.schedule}}</p>
+                                                    <p v-else>{{partyQuest.joinMembers}} / {{partyMembers}} 队员已加入</p>
+                                                </el-col>
+                                                <el-col :span="6">
+                                                    <el-button size="medium" class="party-quest-join-btn" v-if="!partyQuest.active && !partyQuest.isAccept" @click="joinInQuest">加入</el-button>
+                                                </el-col>
+                                            </el-row>
+                                        </el-card>
+                                    </el-timeline-item>
+                                    <el-timeline-item :timestamp="item.user + ' （' + item.timestamp + '）'" placement="top" v-for="item in showTaskList">
+                                        <el-card>
+                                            <p :class="{'system-message':item.user=='系统'}">{{item.text}}</p>
+                                        </el-card>
+                                    </el-timeline-item>
+                                </el-timeline>
+                            </template>
+                            <template v-else>
+                                <el-card>
+                                    <el-row :gutter="18" style="margin-top: -1em">
+                                        <el-col :span="18">
+                                            <h3>加入一个队伍来一起玩Habitica吧！</h3>
+                                            <p>与朋友们一起或是只有你自己来享受惊人的副本。与怪物战斗，创造挑战，并帮助您通过队伍负起自己的责任。</p>
+                                        </el-col>
+                                        <el-col :span="6">
+                                            <el-button size="medium" class="party-quest-join-btn" @click="joinInQuest">加入</el-button>
+                                        </el-col>
+                                    </el-row>
+                                </el-card>
+                            </template>
+                        </div>
                     </div>
                 </el-main>
                 <el-footer style="height: 70px;">
-                    <el-input placeholder="键入回车新建" @keyup.enter.native="create" v-model="createInput" id="createTaskInput"></el-input>
+                    <el-input placeholder="键入回车发射" @keyup.enter.native="create" v-model="createInput" id="createTaskInput"></el-input>
                 </el-footer>
             </el-container>
         </el-container>
@@ -152,7 +191,7 @@
                     <el-row>
                         <el-col :span=11><el-button class="full-width" @click="onRegistered">注 册</el-button></el-col>
                         <el-col :span=2>&nbsp;</el-col>
-                        <el-col :span=11><el-button class="full-width" type="primary" @click="onLogin">登 录</el-button></el-col>
+                        <el-col :span=11><el-button class="full-width" type="primary" @click="loginDialog=false">登 录</el-button></el-col>
                     </el-row>
                 </el-form-item>
             </el-form>
