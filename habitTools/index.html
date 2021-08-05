@@ -35,6 +35,7 @@
                     <el-menu-item index="1" @click="menuVal=1"><i class="el-icon-time"></i><span slot="title">习惯</span></el-menu-item>
                     <el-menu-item index="2" @click="menuVal=2"><i class="el-icon-sunrise-1"></i><span slot="title">每日任务</span></el-menu-item>
                     <el-menu-item index="3" @click="menuVal=3"><i class="el-icon-finished"></i><span slot="title">待办事项</span></el-menu-item>
+                    <el-menu-item index="4" @click="openPartyPage"><i :class="[menuVal===4 ? 'el-icon-refresh' : 'el-icon-chat-line-round']"></i><span slot="title">{{menuVal===4?'刷新队伍':'队伍'}}</span></el-menu-item>
                 </el-menu>
                 <div id="class-tag">
                     <el-row type="flex" class="row-bg" justify="space-around">
@@ -62,16 +63,16 @@
                     <div id="task_list">
                         <div id="habit_list" v-show="menuVal===1">
                             <template v-for="item in showTaskList">
-                                <el-card shadow="hover" :body-style="{color:item.color}">
+                                <el-card shadow="hover" :body-style="{color:item.color}" @click.native="handleOpenDetails(item)">
                                     <el-row :gutter="18">
                                         <el-col :span="2" class="task-icon" :class="[item.up ? '' : 'task-icon-disable']">
-                                            <i class="el-icon-circle-plus-outline" @click="scoreTask(item, 'up')"></i>
+                                            <i class="el-icon-circle-plus-outline" @click.stop="scoreTask(item, 'up')"></i>
                                         </el-col>
                                         <el-col :span="20">{{item.text}}<p>{{item.notes}}</p>
                                             <p class="count-task">+{{item.counterUp}}<el-divider direction="vertical"></el-divider>-{{item.counterDown}}</p>
                                         </el-col>
                                         <el-col :span="2" class="task-icon" :class="[item.down ? '' : 'task-icon-disable']">
-                                            <i class="el-icon-remove-outline" @click="scoreTask(item, 'down')"></i>
+                                            <i class="el-icon-remove-outline" @click.stop="scoreTask(item, 'down')"></i>
                                         </el-col>
                                     </el-row>
                                 </el-card>
@@ -79,21 +80,21 @@
                         </div>
                         <div id="daily_list" v-show="menuVal===2">
                             <template v-for="item in showTaskList">
-                                <el-card shadow="hover" :body-style="{color:item.color}">
+                                <el-card shadow="hover" :body-style="{color:item.color}" @click.native="handleOpenDetails(item)">
                                     <el-row :gutter="18" :class="{'task-completed': item.completed || !item.isDue}">
                                         <el-col :span="2" class="task-icon">
                                             <div v-if="item.completed" >
-                                            <i class="el-icon-circle-check" @click="scoreTask(item, 'down');"></i>
+                                            <i class="el-icon-circle-check" @click.stop="scoreTask(item, 'down')"></i>
                                             </div>
-                                            <div v-else class="todo-circle" @click="scoreTask(item, 'up');"></div>
+                                            <div v-else class="todo-circle" @click.stop="scoreTask(item, 'up')"></div>
                                         </el-col>
                                         <el-col :span="20">{{item.text}}<p>{{item.notes}}</p></el-col>
                                         <el-col :span="2" class="task-icon" v-if="item.checklist && item.checklist.length > 0">
                                             <i :class="[item.collapseChecklist ? 'el-icon-arrow-left' : 'el-icon-arrow-down']"
-                                               @click="item.collapseChecklist=!item.collapseChecklist;changeCollapseIcon(item.id,item.collapseChecklist);"></i>
+                                               @click.stop="item.collapseChecklist=!item.collapseChecklist;changeCollapseIcon(item.id,item.collapseChecklist);"></i>
                                         </el-col>
                                     </el-row>
-                                    <div v-if="item.checklist && item.checklist.length > 0 && !item.collapseChecklist">
+                                    <div v-if="item.checklist && item.checklist.length > 0 && !item.collapseChecklist" @click.stop="doNone">
                                         <el-divider class="checklist-line"></el-divider>
                                         <div v-for="ck in item.checklist" :key="ck.id" class="checklist">
                                             <el-checkbox v-model="ck.completed" :style="{color:item.color}" @change="scoreCheckList(item.id,ck.id)">{{ck.text}}</el-checkbox>
@@ -104,21 +105,21 @@
                         </div>
                         <div id="todo_list" v-show="menuVal===3">
                             <template v-for="item in showTaskList">
-                                <el-card shadow="hover" :body-style="{color:item.color}">
+                                <el-card shadow="hover" :body-style="{color:item.color}" @click.native="handleOpenDetails(item)">
                                     <el-row :gutter="18" :class="{'task-completed': item.completed}">
                                         <el-col :span="2" class="task-icon">
-                                            <i v-if="item.completed" class="el-icon-circle-check" @click="scoreTask(item, 'down');"></i>
-                                            <div v-else class="todo-circle" @click="scoreTask(item, 'up');"></div>
+                                            <i v-if="item.completed" class="el-icon-circle-check" @click.stop="scoreTask(item, 'down')"></i>
+                                            <div v-else class="todo-circle" @click.stop="scoreTask(item, 'up')"></div>
                                         </el-col>
                                         <el-col :span="20">{{item.text}}<p>{{item.notes}}</p>
-                                            <p class="count-task">{{item.date}}</p>
+                                            <p class="count-task">{{item.dateMsg}}</p>
                                         </el-col>
                                         <el-col :span="2" class="task-icon" v-if="item.checklist && item.checklist.length > 0">
                                             <i :class="[item.collapseChecklist ? 'el-icon-arrow-left' : 'el-icon-arrow-down']"
-                                               @click="item.collapseChecklist=!item.collapseChecklist;changeCollapseIcon(item.id,item.collapseChecklist);"></i>
+                                               @click.stop="item.collapseChecklist=!item.collapseChecklist;changeCollapseIcon(item.id,item.collapseChecklist);"></i>
                                         </el-col>
                                     </el-row>
-                                    <div v-if="item.checklist && item.checklist.length > 0 && !item.collapseChecklist">
+                                    <div v-if="item.checklist && item.checklist.length > 0 && !item.collapseChecklist" @click.stop="doNone">
                                         <el-divider class="checklist-line"></el-divider>
                                         <div v-for="ck in item.checklist" :key="ck.id" class="checklist">
                                             <el-checkbox v-model="ck.completed" :style="{color:item.color}" @change="scoreCheckList(item.id,ck.id)">{{ck.text}}</el-checkbox>
@@ -127,15 +128,53 @@
                                 </el-card>
                             </template>
                         </div>
+                        <div id="party_list" v-show="menuVal===4">
+                            <template v-if="this.partyId">
+                                <el-timeline>
+                                    <el-timeline-item placement="top" v-if="partyQuest.key" timestamp="队伍副本">
+                                        <el-card>
+                                            <el-row :gutter="18" style="margin-top: -1em">
+                                                <el-col :span="18">
+                                                    <h3>副本 {{partyQuest.key}} {{partyQuest.active ?  '进行中' : '开启邀请'}}</h3>
+                                                    <p v-if="partyQuest.active">{{partyQuest.haveHP?'BOSS剩余血量':'已收集'}} ：{{partyQuest.schedule}}</p>
+                                                    <p v-else>{{partyQuest.joinMembers}} / {{partyMembers}} 队员已加入</p>
+                                                </el-col>
+                                                <el-col :span="6">
+                                                    <el-button size="medium" class="party-quest-join-btn" v-if="!partyQuest.active && !partyQuest.isAccept" @click="joinInQuest">加入</el-button>
+                                                </el-col>
+                                            </el-row>
+                                        </el-card>
+                                    </el-timeline-item>
+                                    <el-timeline-item :timestamp="item.user + ' （' + item.timestamp + '）'" placement="top" v-for="item in showTaskList">
+                                        <el-card>
+                                            <p :class="{'system-message':item.user=='系统'}">{{item.text}}</p>
+                                        </el-card>
+                                    </el-timeline-item>
+                                </el-timeline>
+                            </template>
+                            <template v-else>
+                                <el-card>
+                                    <el-row :gutter="18" style="margin-top: -1em">
+                                        <el-col :span="18">
+                                            <h3>加入一个队伍来一起玩Habitica吧！</h3>
+                                            <p>与朋友们一起或是只有你自己来享受惊人的副本。与怪物战斗，创造挑战，并帮助您通过队伍负起自己的责任。</p>
+                                        </el-col>
+                                        <el-col :span="6">
+                                            <el-button size="medium" class="party-quest-join-btn" @click="joinInQuest">加入</el-button>
+                                        </el-col>
+                                    </el-row>
+                                </el-card>
+                            </template>
+                        </div>
                     </div>
                 </el-main>
                 <el-footer style="height: 70px;">
-                    <el-input placeholder="键入回车新建" @keyup.enter.native="create" v-model="createInput"></el-input>
+                    <el-input placeholder="键入回车发射" @keyup.enter.native="create" v-model="createInput" id="createTaskInput"></el-input>
                 </el-footer>
             </el-container>
         </el-container>
     </div>
-    <el-drawer direction="ttb" size="80%" @closed="loginHabitica" :visible.sync="dialog" ref="drawer" title="登录" :with-header="false">
+    <el-drawer direction="ttb" size="80%" @closed="loginHabitica" :visible.sync="loginDialog" ref="drawer" title="登录" :with-header="false">
         <div id="loginDrawer" class="full-screen">
             <el-form ref="form" :model="userForm" id="loginForm">
                 <el-form-item>
@@ -150,9 +189,9 @@
                 </el-form-item>
                 <el-form-item>
                     <el-row>
-                        <el-col :span=11><el-button class="loginBtn" @click="onRegistered">注 册</el-button></el-col>
+                        <el-col :span=11><el-button class="full-width" @click="onRegistered">注 册</el-button></el-col>
                         <el-col :span=2>&nbsp;</el-col>
-                        <el-col :span=11><el-button class="loginBtn" type="primary" @click="onLogin">登 录</el-button></el-col>
+                        <el-col :span=11><el-button class="full-width" type="primary" @click="loginDialog=false">登 录</el-button></el-col>
                     </el-row>
                 </el-form-item>
             </el-form>
@@ -186,6 +225,104 @@
             <el-button type="primary" @click="completedYesterday" class="habitica-btn">开始新的一天</el-button>
         </span>
     </el-dialog>
+
+    <el-drawer title="编辑" :visible.sync="taskDetailDialog" direction="rtl" :before-close="handleTaskDetailClose" size="50%" :show-close="false" id="taskDetail">
+        <el-form ref="taskDetails" :model="taskDetails" label-width="60px">
+            <el-form-item label="标题">
+                <el-input v-model="taskDetails.text"></el-input>
+            </el-form-item>
+            <el-form-item label="注释">
+                <el-input type="textarea" v-model="taskDetails.notes"></el-input>
+            </el-form-item>
+
+            <el-row :gutter="20" style="margin-bottom: 20px" v-if="menuVal===1">
+                <el-col :span="6" :offset="7" class="task-icon" :class="[taskDetails.up ? '' : 'task-icon-disable']">
+                    <i class="el-icon-circle-plus-outline" @click="taskDetails.up = !taskDetails.up"></i>
+                </el-col>
+                <el-col :span="6" class="task-icon" :class="[taskDetails.down ? '' : 'task-icon-disable']">
+                    <i class="el-icon-remove-outline" @click="taskDetails.down = !taskDetails.down"></i>
+                </el-col>
+            </el-row>
+            <el-form-item label="清单" id="checkListSetItem" v-if="menuVal===2||menuVal===3">
+                <el-input size="mini" placeholder="新的清单项目" prefix-icon="el-icon-plus"
+                          v-model="taskDetails.newInputCheckList" @keyup.enter.native="createSubTask"></el-input>
+                <template v-for="item in taskDetails.checklist">
+                    <el-input size="small" v-model="item.text" clearable @clear="deleteSubTask(item.id)" @change.native="deleteIfNull(item)"></el-input>
+                </template>
+            </el-form-item>
+
+            <el-form-item label="难度">
+                <el-select v-model="taskDetails.priority" placeholder="请选择难度" class="full-width">
+                    <el-option label="琐事" value="0.1"></el-option>
+                    <el-option label="简单" value="1"></el-option>
+                    <el-option label="中等" value="1.5"></el-option>
+                    <el-option label="困难" value="2"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="开始" v-if="menuVal===2">
+                <el-date-picker v-model="taskDetails.startDate" align="center" type="date" placeholder="选择任务开始日期"
+                                :picker-options="pickerOptions" :clearable="false" class="full-width"></el-date-picker>
+            </el-form-item>
+            <el-form-item label="周期" v-if="menuVal===1">
+                <el-select v-model="taskDetails.frequency" placeholder="请选择连击归零的周期" class="full-width">
+                    <el-option label="每日" value="daily"></el-option>
+                    <el-option label="每周" value="weekly"></el-option>
+                    <el-option label="每月" value="monthly"></el-option>
+                    <el-option label="每年" value="yearly" v-if="menuVal===2"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="周期" v-if="menuVal===2" class="common-color">
+                每
+                <el-input-number v-model="taskDetails.everyX" size="small" controls-position="right" :min="0" style="width:40%"></el-input-number>
+                <el-select v-model="taskDetails.frequency" size="small" style="width:30%">
+                    <el-option label="日" value="daily"></el-option>
+                    <el-option label="周" value="weekly"></el-option>
+                    <el-option label="月" value="monthly"></el-option>
+                    <el-option label="年" value="yearly"></el-option>
+                </el-select>
+                重复一次
+            </el-form-item>
+            <el-form-item label="每周" v-if="menuVal===2&&taskDetails.frequency==='weekly'" class="common-color">
+                <el-tag type="info" effect="plain" :class="{'tag-selected':taskDetails.repeat.su}" @click="taskDetails.repeat.su=!taskDetails.repeat.su">日</el-tag>
+                <el-tag type="info" effect="plain" :class="{'tag-selected':taskDetails.repeat.m}" @click="taskDetails.repeat.m=!taskDetails.repeat.m">一</el-tag>
+                <el-tag type="info" effect="plain" :class="{'tag-selected':taskDetails.repeat.t}" @click="taskDetails.repeat.t=!taskDetails.repeat.t">二</el-tag>
+                <el-tag type="info" effect="plain" :class="{'tag-selected':taskDetails.repeat.w}" @click="taskDetails.repeat.w=!taskDetails.repeat.w">三</el-tag>
+                <el-tag type="info" effect="plain" :class="{'tag-selected':taskDetails.repeat.th}" @click="taskDetails.repeat.th=!taskDetails.repeat.th">四</el-tag>
+                <el-tag type="info" effect="plain" :class="{'tag-selected':taskDetails.repeat.f}" @click="taskDetails.repeat.f=!taskDetails.repeat.f">五</el-tag>
+                <el-tag type="info" effect="plain" :class="{'tag-selected':taskDetails.repeat.s}" @click="taskDetails.repeat.s=!taskDetails.repeat.s">六</el-tag>
+                激活
+            </el-form-item>
+
+            <el-form-item label="连击" v-if="menuVal===1">
+                <el-row :gutter="20" id="counterSetBtn">
+                    <el-col :span="11">
+                        <el-tooltip content="积极的连击" placement="bottom" effect="light">
+                            <el-input-number v-model="taskDetails.counterUp" size="small" controls-position="right" :min="0"></el-input-number>
+                        </el-tooltip>
+                    </el-col>
+                    <el-col :span="11" :offset="1">
+                        <el-tooltip content="消极的连击" placement="bottom" effect="light">
+                            <el-input-number v-model="taskDetails.counterDown" size="small" controls-position="right" :min="0"></el-input-number>
+                        </el-tooltip>
+                    </el-col>
+                </el-row>
+            </el-form-item>
+            <el-form-item label="连击" v-if="menuVal===2">
+                <el-input-number v-model="taskDetails.streak" size="small" controls-position="right" :min="0" class="full-width"></el-input-number>
+            </el-form-item>
+
+            <el-form-item label="截至" v-if="menuVal===3">
+                <el-date-picker v-model="taskDetails.date" align="center" type="date" placeholder="选择任务截至日期"
+                                :picker-options="pickerOptions" :clearable="false" class="full-width"></el-date-picker>
+            </el-form-item>
+
+            <el-form-item id="taskDetail_Submit">
+                <el-button size="small" type="text" @click="handleTaskDetailClose">取消</el-button>
+                <el-button size="small" type="danger" @click="onDeleteTask">删除</el-button>
+                <el-button size="small" type="primary" @click="onUpdateTask">保存</el-button>
+            </el-form-item>
+        </el-form>
+    </el-drawer>
 </div>
 
 </body>
