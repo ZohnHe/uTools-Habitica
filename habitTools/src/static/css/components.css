@@ -150,7 +150,7 @@ html,body,#app,.el-container,.full-screen{
     cursor: not-allowed;
 }
 .task-completed {
-    color: #C3C0C8;
+    color: #C3C0C8 !important;
 }
 .todo-circle {
     border-radius: 100%;

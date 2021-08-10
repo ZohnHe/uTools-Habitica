@@ -97,7 +97,7 @@
                                     <div v-if="item.checklist && item.checklist.length > 0 && !item.collapseChecklist" @click.stop="doNone">
                                         <el-divider class="checklist-line"></el-divider>
                                         <div v-for="ck in item.checklist" :key="ck.id" class="checklist">
-                                            <el-checkbox v-model="ck.completed" :style="{color:item.color}" @change="scoreCheckList(item.id,ck.id)">{{ck.text}}</el-checkbox>
+                                            <el-checkbox v-model="ck.completed" :style="{'color': item.isDue ? item.color:'#C3C0C8'}" @change="scoreCheckList(item.id,ck.id)">{{ck.text}}</el-checkbox>
                                         </div>
                                     </div>
                                 </el-card>
