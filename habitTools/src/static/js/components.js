@@ -238,18 +238,18 @@ new Vue({
                 }
                 this.setDefaultTag(0);
                 let lastCron = new Date(userInfo.lastCron);
-                let todayCron = new Date();
-                todayCron.setHours(userInfo.preferences.dayStart);
-                todayCron.setMinutes(0);
-                todayCron.setSeconds(0);
-                todayCron.setMilliseconds(0);
+                let dateCron = new Date();
+                dateCron.setHours(userInfo.preferences.dayStart);
+                dateCron.setMinutes(0);
+                dateCron.setSeconds(0);
+                dateCron.setMilliseconds(0);
                 let shouldCron = false;
                 let isNextDay = true;
-                if (lastCron < todayCron) {
+                if (lastCron < dateCron) {
                     //上次结算时间 < 今天结算时间
                     if ((now.getTime() - lastCron.getTime()) / 1000 / 60 / 60 < 24) {
                         //当前时间 - 上次结算时间 < 24小时
-                        if (todayCron <= now) {
+                        if (dateCron <= now) {
                             // 当前时间大于等于今天结算时间
                             shouldCron = true;
                         }
@@ -261,8 +261,8 @@ new Vue({
                 }
                 if (shouldCron) {
                     const weekDay = ["su", "m", "t", "w", "th", "f", "s"];
-                    todayCron.setDate(todayCron.getDate() - 1);
-                    let index = weekDay[todayCron.getDay()];
+                    dateCron.setDate(dateCron.getDate() - 1);
+                    let index = weekDay[dateCron.getDay()];
                     for (let i = 0; i < this.dailyList.length; ++i) {
                         let daily = this.dailyList[i];
                         if (daily.completed || now.getTime() < new Date(daily.startDate).getTime()) {
@@ -272,23 +272,48 @@ new Vue({
                             if (daily.isDue) {
                                 this.undoneList.push(daily);
                             }
-                        }else {
-                            if (daily.frequency === "daily") {
-                                if (daily.everyX === 1 || daily.repeat[index]) {
-                                    this.undoneList.push(daily);
-                                }
-                            }else if (daily.frequency === "weekly") {
-                                if (daily.everyX === 1 && daily.repeat[index]) {
-                                    this.undoneList.push(daily);
-                                }
-                            } else {
-                                let dueDays = daily.nextDue;
-                                for (let j = 0; j <= dueDays.length; ++j) {
-                                    if ((j === dueDays.length && todayCron > new Date(dueDays[j - 1])) ||
-                                        todayCron.toLocaleDateString() === new Date(dueDays[j]).toLocaleDateString()) {
+                        } else {
+                            let dueDays = daily.nextDue;
+                            for (let j = 0; j <= dueDays.length; ++j) {
+                                if (j === dueDays.length) {
+                                    if (dateCron <= new Date(dueDays[j - 1])) {
+                                        break;
+                                    }
+                                    if (daily.frequency === "daily") {
+                                        if (daily.everyX === 1) {
+                                            this.undoneList.push(daily);
+                                            break;
+                                        } else {
+                                            let calcDate = new Date(dueDays[j - 1]);
+                                            for (let k = 0; k <= 100; ++k) {
+                                                if (dateCron.toLocaleDateString() === calcDate.toLocaleDateString() || k === 100) {
+                                                    this.undoneList.push(daily);
+                                                    break;
+                                                }
+                                                calcDate.setDate(calcDate.getDate() + daily.everyX);
+                                            }
+                                        }
+                                    } else if (daily.frequency === "weekly") {
+                                        if (daily.everyX === 1 && daily.repeat[index]) {
+                                            this.undoneList.push(daily);
+                                            break;
+                                        } else {
+                                            let calcDate = new Date(dueDays[j - 1]);
+                                            for (let k = 0; k <= 14; ++k) {
+                                                if (dateCron.toLocaleDateString() === calcDate.toLocaleDateString() || k === 14) {
+                                                    this.undoneList.push(daily);
+                                                    break;
+                                                }
+                                                calcDate.setDate(calcDate.getDate() + (daily.everyX * 7));
+                                            }
+                                        }
+                                    } else {
                                         this.undoneList.push(daily);
                                         break;
                                     }
+                                } else if (dateCron.toLocaleDateString() === new Date(dueDays[j]).toLocaleDateString()) {
+                                    this.undoneList.push(daily);
+                                    break;
                                 }
                             }
                         }
@@ -529,7 +554,6 @@ new Vue({
             this.showTaskList = [];
             if (!this.partyId) {
                 this.menuVal = 4;
-
                 return;
             }
             if (this.requestLock) {
@@ -554,13 +578,24 @@ new Vue({
                             }
                         }
                     }
+                    let progress = data.quest.progress;
+                    let haveHp = !!progress.hp;
+                    let schedule = "";
+                    if (haveHp) {
+                        schedule = progress.hp.toFixed(2);
+                    } else {
+                        for(let i in progress.collect) {
+                            schedule += i + ": " + progress.collect[i] + ", ";
+                        }
+                        schedule = schedule.substr(0, schedule.length - 2);
+                    }
                     this.partyQuest = {
                         active: data.quest.active,
                         joinMembers: joinCount,
                         key: questKey,
                         isAccept: isAccept,
-                        haveHP: !!data.quest.progress.hp,
-                        schedule: data.quest.progress.hp ? data.quest.progress.hp.toFixed(2) : data.quest.progress.collect.shard
+                        haveHP: haveHp,
+                        schedule: schedule
                     };
                     this.partyMembers = data.memberCount;
                     this.partyChat = [];
