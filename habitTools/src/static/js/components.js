@@ -247,7 +247,12 @@ new Vue({
                 let isNextDay = true;
                 if (lastCron < dateCron) {
                     //上次结算时间 < 今天结算时间
-                    if ((now.getTime() - lastCron.getTime()) / 1000 / 60 / 60 < 24) {
+                    let nextCron = new Date(userInfo.lastCron);
+                    nextCron.setHours(userInfo.preferences.dayStart);
+                    nextCron.setMinutes(0);
+                    nextCron.setSeconds(0);
+                    nextCron.setMilliseconds(0);
+                    if ((now.getTime() - (nextCron.getTime() + 1000 * 60 * 60 * 24)) / 1000 / 60 / 60 < 24) {
                         //当前时间 - 上次结算时间 < 24小时
                         if (dateCron <= now) {
                             // 当前时间大于等于今天结算时间
@@ -603,10 +608,20 @@ new Vue({
                     for (let i = 0; i < data.chat.length; ++i) {
                         let chat = data.chat[i];
                         let user = chat.user;
+                        let text = chat.text;
+                        if (!user) {
+                            text = text.replaceAll('`', '');
+                            user = "系统";
+                        }
+                        let match = text.match(/\[(.*?)\]\((.*?)\)/);
+                        while (match) {
+                            text = text.replaceAll(match[0], match[1]);
+                            match = text.match(/\[(.*?)\]\((.*?)\)/);
+                        }
                         this.partyChat.push({
                             id: chat._id,
-                            text: chat.text.replaceAll('`', ''),
-                            user: user ? user : "系统",
+                            text: text,
+                            user: user,
                             timestamp: new Date(chat.timestamp).toLocaleString('zh', {hour12: false}),
                             canDel: userId === chat.uuid || userId === leader
                         });
