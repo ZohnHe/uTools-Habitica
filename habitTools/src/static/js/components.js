@@ -104,7 +104,7 @@ new Vue({
         onRegistered() {openBrowser("https://habitica.com/static/home");},
         doNone() {return false;},
         showErrMsg(msg) {
-            let showMsg = !msg ? '失去同步' : msg === 429 ? '操作频繁，休息一会' : msg === 400 ? '提交内容有误' : '失去同步，' + msg;
+            let showMsg = !msg ? "失去同步" : msg === 429 ? "操作频繁，休息一会" : msg === 400 ? "提交内容有误" : msg === 401 ? "不允许的操作" : "失去同步，" + msg;
             let that = this;
             setTimeout(function () {that.$message.error(showMsg);}, 200);
         },
@@ -246,20 +246,16 @@ new Vue({
                 let shouldCron = false;
                 let isNextDay = true;
                 if (lastCron < dateCron) {
-                    //上次结算时间 < 今天结算时间
                     let nextCron = new Date(userInfo.lastCron);
                     nextCron.setHours(userInfo.preferences.dayStart);
                     nextCron.setMinutes(0);
                     nextCron.setSeconds(0);
                     nextCron.setMilliseconds(0);
                     if ((now.getTime() - (nextCron.getTime() + 1000 * 60 * 60 * 24)) / 1000 / 60 / 60 < 24) {
-                        //当前时间 - 上次结算时间 < 24小时
                         if (dateCron <= now) {
-                            // 当前时间大于等于今天结算时间
                             shouldCron = true;
                         }
                     } else {
-                        //大于24小时
                         shouldCron = true;
                         isNextDay = false;
                     }
@@ -281,7 +277,7 @@ new Vue({
                             let dueDays = daily.nextDue;
                             for (let j = 0; j <= dueDays.length; ++j) {
                                 if (j === dueDays.length) {
-                                    if (dateCron <= new Date(dueDays[j - 1])) {
+                                    if (new Date(dueDays[j - 1]) > dateCron) {
                                         break;
                                     }
                                     if (daily.frequency === "daily") {
@@ -295,6 +291,7 @@ new Vue({
                                                     this.undoneList.push(daily);
                                                     break;
                                                 }
+                                                if (calcDate >  dateCron) break;
                                                 calcDate.setDate(calcDate.getDate() + daily.everyX);
                                             }
                                         }
@@ -309,8 +306,21 @@ new Vue({
                                                     this.undoneList.push(daily);
                                                     break;
                                                 }
+                                                if (calcDate >  dateCron) break;
                                                 calcDate.setDate(calcDate.getDate() + (daily.everyX * 7));
                                             }
+                                        }
+                                    } else if (daily.frequency === "monthly") {
+                                        if (!daily.daysOfMonth && !daily.weeksOfMonth) {
+                                            let calcDate = new Date(daily.startDate);
+                                            calcDate.setMonth(calcDate.getMonth() + daily.everyX);
+                                            if (dateCron.toLocaleDateString() === calcDate.toLocaleDateString()) {
+                                                this.undoneList.push(daily);
+                                                break;
+                                            }
+                                        } else {
+                                            this.undoneList.push(daily);
+                                            break;
                                         }
                                     } else {
                                         this.undoneList.push(daily);
@@ -573,6 +583,7 @@ new Vue({
                     let joinCount = 0;
                     let isAccept = false;
                     if (questKey) {
+                        questKey = findQuestNameByKey(questKey);
                         let members = data.quest.members;
                         for (let member in members) {
                             if (members[member]) {
@@ -589,8 +600,9 @@ new Vue({
                     if (haveHp) {
                         schedule = progress.hp.toFixed(2);
                     } else {
-                        for(let i in progress.collect) {
-                            schedule += i + ": " + progress.collect[i] + ", ";
+                        for(let key in progress.collect) {
+                            let name = findCollectNameByKey(key);
+                            schedule += name + ": " + progress.collect[key] + ", ";
                         }
                         schedule = schedule.substr(0, schedule.length - 2);
                     }
@@ -640,7 +652,7 @@ new Vue({
                 openBrowser("https://habitica.com/party");
                 return;
             }
-            responsePartyQuest(this.partyId,"accept", (success, data) => {
+            responsePartyQuest(this.partyId, "accept", (success, data) => {
                 if (success) {
                     this.partyQuest.isAccept = true;
                     this.partyQuest.joinMembers++;
@@ -648,9 +660,25 @@ new Vue({
                         this.partyQuest.active = true;
                     }
                 } else {
-                    this.showErrMsg(data);
+                    this.showErrMsg(data === 401 ? "退出后不能再加入了" : data);
                 }
-            })
+            });
+        },
+        quitOutQuest() {
+            this.$confirm('退出副本？退出后将不能再次加入', '提示', {
+                confirmButtonText: '很确定',
+                cancelButtonText: '手抖了',
+                type: 'warning'
+            }).then(() => {
+                responsePartyQuest(this.partyId,"leave", (success, data) => {
+                    if (success) {
+                        this.partyQuest.isAccept = false;
+                        this.partyQuest.joinMembers--;
+                    } else {
+                        this.showErrMsg(data === 401 ? "副本发起者不能离开副本" : data);
+                    }
+                })
+            });
         }
     },
     mounted() {utools.onPluginEnter(() => this.onSynchronousData());},

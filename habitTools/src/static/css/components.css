@@ -229,13 +229,14 @@ html,body,#app,.el-container,.full-screen{
     border-right: none;
     border-top: none;
 }
-.party-quest-join-btn {
+.party-quest-join-btn,.party-quest-join-btn:hover,.party-quest-join-btn:focus,.party-quest-join-btn *:hover  {
     margin-top: 1.5em;
     background-color: #4F2A93;
     border-color: #432874;
     color: #FFFFFF;
 }
-.party-quest-join-btn:hover,.party-quest-join-btn:focus,.party-quest-join-btn *:hover{
+.party-quest-quit-btn,.party-quest-quit-btn:hover,.party-quest-quit-btn:focus,.party-quest-quit-btn *:hover {
+    margin-top: 1.5em;
     background-color: #FFFFFF;
     border-color: #432874;
     color: #432874;
