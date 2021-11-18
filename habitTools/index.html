@@ -135,12 +135,13 @@
                                         <el-card>
                                             <el-row :gutter="18" style="margin-top: -1em">
                                                 <el-col :span="18">
-                                                    <h3>副本 {{partyQuest.key}} {{partyQuest.active ?  '进行中' : '开启邀请'}}</h3>
+                                                    <h3>副本 “{{partyQuest.key}}” {{partyQuest.active ?  '进行中' : '开启邀请'}}</h3>
                                                     <p v-if="partyQuest.active">{{partyQuest.haveHP?'BOSS剩余血量':'已收集'}} ：{{partyQuest.schedule}}</p>
                                                     <p v-else>{{partyQuest.joinMembers}} / {{partyMembers}} 队员已加入</p>
                                                 </el-col>
                                                 <el-col :span="6">
                                                     <el-button size="medium" class="party-quest-join-btn" v-if="!partyQuest.active && !partyQuest.isAccept" @click="joinInQuest">加入</el-button>
+                                                    <el-button size="medium" class="party-quest-quit-btn" v-if="partyQuest.isAccept" @click="quitOutQuest">已加入</el-button>
                                                 </el-col>
                                             </el-row>
                                         </el-card>
