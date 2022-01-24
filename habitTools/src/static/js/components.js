@@ -104,7 +104,18 @@ new Vue({
         onRegistered() {openBrowser("https://habitica.com/static/home");},
         doNone() {return false;},
         showErrMsg(msg) {
-            let showMsg = !msg ? "失去同步" : msg === 429 ? "操作频繁，休息一会" : msg === 400 ? "提交内容有误" : msg === 401 ? "不允许的操作" : "失去同步，" + msg;
+            let showMsg = "";
+            if (msg == null) {
+                showMsg = "与Habitica通信异常，需检查网络环境";
+            } else if (msg === 429) {
+                showMsg = "操作频繁，休息一会";
+            } else if (msg === 400) {
+                showMsg = "提交内容有误";
+            } else if (msg === 401) {
+                showMsg = "不允许的操作";
+            } else {
+                showMsg = "失去同步。" + msg;
+            }
             let that = this;
             setTimeout(function () {that.$message.error(showMsg);}, 200);
         },
@@ -120,14 +131,14 @@ new Vue({
             headers["x-api-key"] = key;
             getHBUserInfo((success, data) => {
                 if (success) {
-                    this.refreshData(data);
+                    this.refreshData(data, null);
                     saveToDB(DB_KEY_USER_INFO, window.btoa(this.userForm.key + DB_KEY_SPLIT + this.userForm.user));
                     this.userForm.key = '';
                     this.userForm.user = '';
                     this.isLoading = false;
                 } else {
                     this.loginDialog = true;
-                    this.showErrMsg(data + " 校验失败");
+                    this.showErrMsg(data == null ? data : data + " 校验失败");
                 }
             });
         },
@@ -148,18 +159,25 @@ new Vue({
                 this.loginDialog = true;
                 return;
             }
+            if (this.requestLock) {
+                return;
+            }
+            this.requestLock = true;
+            let load = this.$message({message: '同步中...', center: true, duration: 0, offset: 70});
             getHBUserInfo((success, data) => {
+                this.requestLock = false;
                 if (success) {
-                    this.refreshData(data);
+                    this.refreshData(data, load);
                 } else {
-                    if (data !== 429) {
+                    if (data != null && data !== 429) {
                         this.onLogout();
                     }
+                    load.close();
                     this.showErrMsg(data);
                 }
             });
         },
-        refreshData(userInfo) {
+        refreshData(userInfo, load) {
             this.name = userInfo.profile.name;
             this.username = userInfo.auth.local.username;
             this.level = userInfo.stats.lvl;
@@ -177,9 +195,12 @@ new Vue({
             this.userAvatarImg = "./src/static/svg/" + userInfo.stats.class + ".svg";
             this.partyId = userInfo.party._id;
             this.isLoading = false;
-            getHBHabit((tasks) =>{
-                if (tasks == null) {
-                    this.showErrMsg();
+            getHBHabit((success, data) => {
+                if (!success) {
+                    if (load) {
+                        load.close();
+                    }
+                    this.showErrMsg(data);
                     return;
                 }
                 this.habitList = [];
@@ -187,8 +208,8 @@ new Vue({
                 this.todoList = [];
                 this.undoneList = [];
                 let now = new Date();
-                for (let i = 0; i < tasks.length ; ++i) {
-                    let task = tasks[i];
+                for (let i = 0; i < data.length; ++i) {
+                    let task = data[i];
                     if (task.type === "habit") {
                         this.habitList.push({
                             id: task.id,
@@ -203,7 +224,7 @@ new Vue({
                             priority: String(task.priority),
                             frequency: task.frequency
                         });
-                    }else if (task.type === "daily") {
+                    } else if (task.type === "daily") {
                         this.dailyList.push({
                             id: task.id,
                             text: task.text,
@@ -219,15 +240,17 @@ new Vue({
                             frequency: task.frequency,
                             startDate: task.startDate,
                             streak: task.streak,
-                            nextDue: task.nextDue
+                            nextDue: task.nextDue,
+                            daysOfMonth: task.daysOfMonth,
+                            weeksOfMonth: task.weeksOfMonth
                         });
-                    }else if (task.type === "todo") {
+                    } else if (task.type === "todo") {
                         this.todoList.push({
                             id: task.id,
                             text: task.text,
                             notes: task.notes,
                             color: getColorByValue(task.value),
-                            completed : task.completed,
+                            completed: task.completed,
                             collapseChecklist: task.collapseChecklist,
                             checklist: task.checklist,
                             date: task.date,
@@ -291,7 +314,7 @@ new Vue({
                                                     this.undoneList.push(daily);
                                                     break;
                                                 }
-                                                if (calcDate >  dateCron) break;
+                                                if (calcDate > dateCron) break;
                                                 calcDate.setDate(calcDate.getDate() + daily.everyX);
                                             }
                                         }
@@ -306,12 +329,12 @@ new Vue({
                                                     this.undoneList.push(daily);
                                                     break;
                                                 }
-                                                if (calcDate >  dateCron) break;
+                                                if (calcDate > dateCron) break;
                                                 calcDate.setDate(calcDate.getDate() + (daily.everyX * 7));
                                             }
                                         }
                                     } else if (daily.frequency === "monthly") {
-                                        if (!daily.daysOfMonth && !daily.weeksOfMonth) {
+                                        if (daily.daysOfMonth.length + daily.weeksOfMonth.length <= 0) {
                                             let calcDate = new Date(daily.startDate);
                                             calcDate.setMonth(calcDate.getMonth() + daily.everyX);
                                             if (dateCron.toLocaleDateString() === calcDate.toLocaleDateString()) {
@@ -338,6 +361,9 @@ new Vue({
                             success ? this.onSynchronousData() : this.openHabitica();
                         });
                     }
+                }
+                if (load) {
+                    load.close();
                 }
                 this.$message({message: '同步完成', center: true, type: 'success', duration: 1000, offset: 70});
             });
@@ -422,23 +448,23 @@ new Vue({
                 if (!this.partyId) {
                     return;
                 }
-                sendPartyChat(this.partyId, this.createInput, (success) => {
+                sendPartyChat(this.partyId, this.createInput, (success, data) => {
                     if (success) {
                         this.createInput = '';
                         this.openPartyPage();
                     } else {
-                        this.showErrMsg();
+                        this.showErrMsg(data);
                     }
                 });
             } else {
                 let type = this.menuVal === 1 ? "habit" : this.menuVal === 2 ? "daily" : this.menuVal === 3 ? "todo" : "";
-                createTask(this.createInput, type, (success) => {
+                createTask(this.createInput, type, (success, data) => {
                     if (success) {
                         this.createInput = '';
+                        this.onSynchronousData();
                     } else {
-                        this.showErrMsg();
+                        this.showErrMsg(data);
                     }
-                    this.onSynchronousData();
                 });
             }
         },
@@ -576,6 +602,7 @@ new Vue({
             }
             this.requestLock = true;
             getHBPartyInfo(this.partyId,(success, data) => {
+                this.requestLock = false;
                 if (success) {
                     let userId = headers["x-api-user"];
                     location.href = "#party_list";
@@ -644,7 +671,6 @@ new Vue({
                 }
                 this.menuVal = 4;
                 this.setDefaultTag(0);
-                this.requestLock = false;
             });
         },
         joinInQuest() {
@@ -660,7 +686,7 @@ new Vue({
                         this.partyQuest.active = true;
                     }
                 } else {
-                    this.showErrMsg(data === 401 ? "退出后不能再加入了" : data);
+                    this.showErrMsg(data === 401 ? "已经不能再加入了" : data);
                 }
             });
         },
@@ -678,6 +704,31 @@ new Vue({
                         this.showErrMsg(data === 401 ? "副本发起者不能离开副本" : data);
                     }
                 })
+            });
+        },
+        dragTaskEnd(evt) {
+            this.drag = false;
+            let oldIndex = evt.oldIndex;
+            let newIndex = evt.newIndex;
+            if (oldIndex === newIndex) {
+                return;
+            }
+            let target = 0;
+            let arr = this.menuVal === 1 ? this.habitList : this.menuVal === 2 ? this.dailyList : this.menuVal === 3 ? this.todoList : [];
+            for (let i = 0; i < arr.length; i++) {
+                if (this.showTaskList[oldIndex < newIndex ? newIndex - 1 : newIndex + 1].id === arr[i].id) {
+                    target = i;
+                    break;
+                }
+            }
+            dragHabiticaTask(this.showTaskList[newIndex].id, target, (success, data) => {
+                if (success) {
+                    arr.sort((a, b) => {
+                        return data.indexOf(a.id) - data.indexOf(b.id);
+                    });
+                } else {
+                    this.showErrMsg(data);
+                }
             });
         }
     },
@@ -746,14 +797,14 @@ new Vue({
                 }
                 this.conservedTag[2] = newVal;
             } else if (newVal === 9) {
-                getHBCompletedTask((tasks) => {
-                    if (tasks == null) {
-                        this.showErrMsg();
+                getHBCompletedTask((success, data) => {
+                    if (!success) {
+                        this.showErrMsg(data);
                         return;
                     }
                     let now = new Date();
-                    for (let i = 0; i < tasks.length; ++i) {
-                        let task = tasks[i];
+                    for (let i = 0; i < data.length; ++i) {
+                        let task = data[i];
                         this.showTaskList.push({
                             id: task.id,
                             text: task.text,

@@ -125,8 +125,12 @@ html,body,#app,.el-container,.full-screen{
 .el-main::-webkit-scrollbar {
     width: 0 !important
 }
-.el-card :hover {
-    background-color: #F7F7F7;
+.task-card {
+    margin-bottom: 2px;
+}
+.task-card>.el-card__body:hover,.task-card .el-checkbox__inner:hover,.task-card .is-focus>.el-checkbox__inner{
+    background-color: #FDFDFD;
+    border: 1px solid;
 }
 #task_list {
     font-size: 15px;

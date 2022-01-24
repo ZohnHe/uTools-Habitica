@@ -2,13 +2,13 @@
 	"pluginName": "habitTools",
 	"description": "习惯养成及生产力应用 —— Habitica（的第三方插件）",
 	"main": "index.html",
-    "version": "1.4.4",
+    "version": "1.5.0",
     "author": "Zohn",
     "logo": "src/static/img/habitica.png",
 	"features": [
 		{
 		    "code": "habitTools",
-		    "explain": "打开habitica插件",
+		    "explain": "培养你的习惯",
             "cmds":["habit", "habitica"]
 		}
 	]
