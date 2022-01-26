@@ -132,19 +132,22 @@ html,body,#app,.el-container,.full-screen{
     background-color: #FDFDFD;
     border: 1px solid;
 }
+.task-card>.el-card__body:hover {
+    padding: 19px;
+}
 #task_list {
     font-size: 15px;
 }
 #task_list p {
     margin: 4px 0 0 0;
-    font: 11px Extra Small;
+    font: 12px Extra Small;
     letter-spacing: 0.5px;
 }
 .task-icon {
     text-align: center;
     font-size: 26px;
 }
-.task-icon :hover {
+.clickable :hover {
     cursor: pointer;
 }
 .task-icon-disable {
@@ -247,7 +250,32 @@ html,body,#app,.el-container,.full-screen{
 }
 .system-message {
     margin: 4px 0 0 0;
-    font: 11px Extra Small;
+    font: 12px Extra Small;
     letter-spacing: 0.5px;
     color: #E83E8C;
+}
+.reward-icon {
+    margin: 0 auto;
+    width: 1.8em;
+    text-align: center;
+}
+.menu-reward-icon {
+    width: 18px;
+    padding-left: 3px;
+    padding-right: 10px;
+    float: left;
+}
+.menu-reward-gold {
+    font-size: larger;
+    font-weight: bold;
+    color: #8A4B00;
+}
+.reward-cost {
+    font: 12px Extra Small;
+    color: #8A4B00;
+    text-align: center;
+}
+.item-center {
+    display: flex;
+    align-items: center;
 }

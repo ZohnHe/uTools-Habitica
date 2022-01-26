@@ -36,13 +36,15 @@ new Vue({
         maxEXP: 0,
         MP: 0,
         maxMP: 0,
+        GP: 0,
         menuVal: 1,
         selectTag: 0,
-        conservedTag: [0,4,7,10],
+        conservedTag: [0,4,7,10,13],
         dynamicTags: [{index: 1, name: "全 部"}, {index: 2, name: "偶 尔"}, {index: 3, name: "经 常"}],
         habitList: [],
         dailyList: [],
         todoList: [],
+        rewardList: [],
         undoneList: [],
         showTaskList: [],
         createInput: "",
@@ -64,7 +66,8 @@ new Vue({
             everyX: 0,
             repeat: {"m": true, "t": true, "w": true, "th": true, "f": true, "s": true, "su": true},
             streak: 0,
-            date: ""
+            date: "",
+            cost: 0
         },
         pickerOptions: {
             shortcuts: [{
@@ -114,7 +117,7 @@ new Vue({
             } else if (msg === 401) {
                 showMsg = "不允许的操作";
             } else {
-                showMsg = "失去同步。" + msg;
+                showMsg = "失去同步，" + msg;
             }
             let that = this;
             setTimeout(function () {that.$message.error(showMsg);}, 200);
@@ -163,7 +166,7 @@ new Vue({
                 return;
             }
             this.requestLock = true;
-            let load = this.$message({message: '同步中...', center: true, duration: 0, offset: 70});
+            let load = this.$message({message: '同步中...', center: true, duration: 0});
             getHBUserInfo((success, data) => {
                 this.requestLock = false;
                 if (success) {
@@ -192,6 +195,7 @@ new Vue({
             this.maxEXP = userInfo.stats.toNextLevel;
             this.MP = userInfo.stats.mp;
             this.maxMP = userInfo.stats.maxMP;
+            this.GP = userInfo.stats.gp;
             this.userAvatarImg = "./src/static/svg/" + userInfo.stats.class + ".svg";
             this.partyId = userInfo.party._id;
             this.isLoading = false;
@@ -206,6 +210,7 @@ new Vue({
                 this.habitList = [];
                 this.dailyList = [];
                 this.todoList = [];
+                this.rewardList = [];
                 this.undoneList = [];
                 let now = new Date();
                 for (let i = 0; i < data.length; ++i) {
@@ -256,6 +261,14 @@ new Vue({
                             date: task.date,
                             dateMsg: getDateReminder(now, task.date),
                             priority: String(task.priority),
+                        });
+                    } else if (task.type === "reward") {
+                        this.rewardList.push({
+                            id: task.id,
+                            text: task.text,
+                            notes: task.notes,
+                            color: getColorByValue(0),
+                            cost: task.value
                         });
                     }
                 }
@@ -357,15 +370,15 @@ new Vue({
                         }
                     }
                     if (this.undoneList.length <= 0) {
-                        cronTask((success) => {
-                            success ? this.onSynchronousData() : this.openHabitica();
+                        cronTask((cronSuccess) => {
+                            cronSuccess ? this.onSynchronousData() : this.openHabitica();
                         });
                     }
                 }
                 if (load) {
                     load.close();
                 }
-                this.$message({message: '同步完成', center: true, type: 'success', duration: 1000, offset: 70});
+                this.$message({message: '同步完成', center: true, type: 'success', duration: 1000});
             });
         },
         onLogout() {
@@ -377,7 +390,7 @@ new Vue({
             delInDB(DB_KEY_TAG_SETTING);
             this.loginDialog = true;
         },
-        openHabitica() {openBrowser("https://habitica.com");},
+        openHabitica() {openBrowser(API_ROOT);},
         formatHP(percentage) {return ~~this.HP;},
         formatEXP(percentage) {return ~~this.EXP;},
         formatMP(percentage) {return ~~this.MP;},
@@ -401,7 +414,7 @@ new Vue({
                         if ((selectTag === 2 && task.value >= 1) || (selectTag === 3 && task.value < 1)) {
                             this.selectTag = 0;
                         }
-                    } else {
+                    } else if (menuVal !== 4) {
                         if (selectTag === 9) {
                             this.todoList.push(task);
                         }
@@ -428,15 +441,24 @@ new Vue({
                     } else if (data.exp > this.EXP){
                         await this.$notify({message: '经验：+' + (data.exp - this.EXP).toFixed(2), position: 'bottom-left', type: 'success', duration: 2000, offset:70});
                     }
+                    this.level = data.lvl;
+                    this.EXP = data.exp;
                     if (data.mp < this.MP) {
                         await this.$notify({message: '魔法：-' + (this.MP - data.mp).toFixed(2), position: 'bottom-left', type: 'warning', duration: 2000, offset:70});
                     } else if (data.mp > this.MP){
                         await this.$notify({message: '魔法：+' + (data.mp - this.MP).toFixed(2), position: 'bottom-left', type: 'success', duration: 2000, offset:70});
                     }
-                    this.level = data.lvl;
-                    this.EXP = data.exp;
                     this.MP = data.mp;
+                    if (data.gp < this.GP) {
+                        await this.$notify({message: '金币：-' + (this.GP - data.gp).toFixed(2), position: 'bottom-left', type: 'warning', duration: 2000, offset:70});
+                    } else if (data.gp > this.GP){
+                        await this.$notify({message: '金币：+' + (data.gp - this.GP).toFixed(2), position: 'bottom-left', type: 'success', duration: 2000, offset:70});
+                    }
+                    this.GP = data.gp;
                 } else {
+                    if (menuVal === 4 && data === 401) {
+                        data = "金币不足";
+                    }
                     this.showErrMsg(data);
                 }
                 this.requestLock = false;
@@ -444,7 +466,7 @@ new Vue({
         },
         scoreCheckList(taskId, checkListId) {scoreHBCheckList(taskId, checkListId);},
         create() {
-            if (this.menuVal === 4) {
+            if (this.menuVal === 5) {
                 if (!this.partyId) {
                     return;
                 }
@@ -457,7 +479,7 @@ new Vue({
                     }
                 });
             } else {
-                let type = this.menuVal === 1 ? "habit" : this.menuVal === 2 ? "daily" : this.menuVal === 3 ? "todo" : "";
+                let type = this.menuVal === 1 ? "habit" : this.menuVal === 2 ? "daily" : this.menuVal === 3 ? "todo" : this.menuVal === 4 ? "reward" : "";
                 createTask(this.createInput, type, (success, data) => {
                     if (success) {
                         this.createInput = '';
@@ -529,7 +551,8 @@ new Vue({
                 everyX: task.everyX,
                 repeat: task.repeat,
                 streak: task.streak,
-                date: task.date
+                date: task.date,
+                value: task.cost
             };
             this.taskDetailDialog = true;
         },
@@ -594,7 +617,7 @@ new Vue({
         openPartyPage() {
             this.showTaskList = [];
             if (!this.partyId) {
-                this.menuVal = 4;
+                this.menuVal = 5;
                 return;
             }
             if (this.requestLock) {
@@ -643,7 +666,6 @@ new Vue({
                     };
                     this.partyMembers = data.memberCount;
                     this.partyChat = [];
-                    let leader = data.leader.id;
                     for (let i = 0; i < data.chat.length; ++i) {
                         let chat = data.chat[i];
                         let user = chat.user;
@@ -662,14 +684,14 @@ new Vue({
                             text: text,
                             user: user,
                             timestamp: new Date(chat.timestamp).toLocaleString('zh', {hour12: false}),
-                            canDel: userId === chat.uuid || userId === leader
+                            canDel: userId === chat.uuid //todo del
                         });
                     }
-                    this.$message({message: '同步完成', center: true, type: 'success', duration: 1000, offset: 70});
+                    this.$message({message: '同步完成', center: true, type: 'success', duration: 1000});
                 } else {
                     this.showErrMsg(data);
                 }
-                this.menuVal = 4;
+                this.menuVal = 5;
                 this.setDefaultTag(0);
             });
         },
@@ -714,7 +736,7 @@ new Vue({
                 return;
             }
             let target = 0;
-            let arr = this.menuVal === 1 ? this.habitList : this.menuVal === 2 ? this.dailyList : this.menuVal === 3 ? this.todoList : [];
+            let arr = this.menuVal === 1 ? this.habitList : this.menuVal === 2 ? this.dailyList : this.menuVal === 3 ? this.todoList : this.menuVal === 4 ? this.rewardList : [];
             for (let i = 0; i < arr.length; i++) {
                 if (this.showTaskList[oldIndex < newIndex ? newIndex - 1 : newIndex + 1].id === arr[i].id) {
                     target = i;
@@ -752,12 +774,14 @@ new Vue({
         menuVal: function (newVal, oldVal) {
             if (newVal === 1) {
                 this.dynamicTags = [{index: 1, name: "全 部"}, {index: 2, name: "偶 尔"}, {index: 3, name: "经 常"}];
-            }else if (newVal === 2) {
+            } else if (newVal === 2) {
                 this.dynamicTags = [{index: 4, name: "全 部"}, {index: 5, name: "待 办"}, {index: 6, name: "已 办"}];
-            }else if (newVal === 3) {
+            } else if (newVal === 3) {
                 this.dynamicTags = [{index: 7, name: "进 行"}, {index: 8, name: "限 时"}, {index: 9, name: "已 办"}];
-            }else if (newVal === 4) {
-                this.dynamicTags = [{index: 10, name: "全 部"}, {index: 11, name: "成 员"}, {index: 12, name: "系 统"}];
+            } else if (newVal === 4) {
+                this.dynamicTags = [{index: 10, name: "全 部"}, {index: 11, name: "定 制"}, {index: 12, name: "其 他"}];
+            } else if (newVal === 5) {
+                this.dynamicTags = [{index: 13, name: "全 部"}, {index: 14, name: "成 员"}, {index: 15, name: "系 统"}];
             }
             this.setDefaultTag();
         },
@@ -819,16 +843,23 @@ new Vue({
                     }
                     this.conservedTag[2] = newVal;
                 });
-            } else if (newVal === 10) {
-                this.showTaskList = this.partyChat;
+            } else if (newVal === 10 || newVal === 11) {
+                for (let i = 0; i < this.rewardList.length; ++i) {
+                    this.showTaskList.push(this.rewardList[i]);
+                }
                 this.conservedTag[3] = newVal;
-            } else if (newVal === 11 || newVal === 12) {
+            } else if (newVal === 12) {
+                this.conservedTag[3] = newVal;
+            } else if (newVal === 13) {
+                this.showTaskList = this.partyChat;
+                this.conservedTag[4] = newVal;
+            } else if (newVal === 14 || newVal === 15) {
                 for (let i = 0; i < this.partyChat.length; ++i) {
-                    if (newVal === 12 && this.partyChat[i].user === '系统' || newVal === 11 && this.partyChat[i].user !== '系统') {
+                    if (newVal === 15 && this.partyChat[i].user === '系统' || newVal === 14 && this.partyChat[i].user !== '系统') {
                         this.showTaskList.push(this.partyChat[i]);
                     }
                 }
-                this.conservedTag[3] = newVal;
+                this.conservedTag[4] = newVal;
             }
             setTimeout(() => {
                 let saveArr = this.conservedTag.join(DB_KEY_SPLIT);

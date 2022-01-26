@@ -35,7 +35,28 @@
                     <el-menu-item index="1" @click="menuVal=1"><i class="el-icon-time"></i><span slot="title">习惯</span></el-menu-item>
                     <el-menu-item index="2" @click="menuVal=2"><i class="el-icon-sunrise-1"></i><span slot="title">每日任务</span></el-menu-item>
                     <el-menu-item index="3" @click="menuVal=3"><i class="el-icon-finished"></i><span slot="title">待办事项</span></el-menu-item>
-                    <el-menu-item index="4" @click="openPartyPage"><i :class="[menuVal===4 ? 'el-icon-refresh' : 'el-icon-chat-line-round']"></i><span slot="title">{{menuVal===4?'刷新队伍':'队伍'}}</span></el-menu-item>
+                    <el-menu-item index="4" @click="menuVal=4">
+                        <div v-if="menuVal!=4"><i class="el-icon-ice-cream-square"></i><span slot="title">奖励</span></div>
+                        <div v-else>
+                            <div class="menu-reward-icon">
+                                <svg viewBox="0 0 24 24">
+                                    <g fill="none" fill-rule="evenodd">
+                                        <circle cx="12" cy="12" r="12" fill="#FFA623"/>
+                                        <path fill="#FFF" d="M6.3 17.7c-3.1-3.1-3.1-8.2 0-11.3 3.1-3.1 8.2-3.1 11.3 0" opacity=".5"/>
+                                        <path fill="#FFF" d="M17.7 6.3c3.1 3.1 3.1 8.2 0 11.3-3.1 3.1-8.2 3.1-11.3 0" opacity=".25"/>
+                                        <path fill="#BF7D1A" d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z" opacity=".5"/>
+                                        <path fill="#BF7D1A" d="M13 9v2h-2V9H9v6h2v-2h2v2h2V9z" opacity=".75"/>
+                                    </g>
+                                </svg>
+                            </div>
+                            <div class="menu-reward-gold">{{GP.toFixed(2)}}</div>
+                            </el-row>
+                        </div>
+                    </el-menu-item>
+                    <el-menu-item index="5" @click="openPartyPage">
+                        <i :class="[menuVal===5 ? 'el-icon-refresh' : 'el-icon-chat-line-round']">
+                        </i><span slot="title">{{menuVal===5?'刷新队伍':'队伍'}}</span>
+                    </el-menu-item>
                 </el-menu>
                 <div id="class-tag">
                     <el-row type="flex" class="row-bg" justify="space-around">
@@ -65,16 +86,17 @@
                             <draggable v-model="showTaskList" group="habit" @start="drag=true" @end="dragTaskEnd" animation="300">
                                 <template v-for="item in showTaskList" :key="id">
                                     <el-card shadow="hover" :body-style="{color:item.color}" @click.native="handleOpenDetails(item)" class="task-card">
-                                        <el-row :gutter="18">
-                                            <el-col :span="2" class="task-icon" :class="[item.up ? '' : 'task-icon-disable']">
+                                        <el-row :gutter="18" class="item-center">
+                                            <el-col :span="2" class="task-icon clickable" :class="[item.up ? '' : 'task-icon-disable']">
                                                 <i class="el-icon-circle-plus-outline" @click.stop="scoreTask(item, 'up')"></i>
                                             </el-col>
-                                            <el-col :span="20">{{item.text}}<p>{{item.notes}}</p>
-                                                <p class="count-task">+{{item.counterUp}}<el-divider direction="vertical"></el-divider>-{{item.counterDown}}</p>
-                                            </el-col>
-                                            <el-col :span="2" class="task-icon" :class="[item.down ? '' : 'task-icon-disable']">
+                                            <el-col :span="20">{{item.text}}<p>{{item.notes}}</p></el-col>
+                                            <el-col :span="2" class="task-icon clickable" :class="[item.down ? '' : 'task-icon-disable']">
                                                 <i class="el-icon-remove-outline" @click.stop="scoreTask(item, 'down')"></i>
                                             </el-col>
+                                        </el-row>
+                                        <el-row class="item-center">
+                                            <el-col :span="22"><p class="count-task">+{{item.counterUp}}<el-divider direction="vertical"></el-divider>-{{item.counterDown}}</p></el-col>
                                         </el-row>
                                     </el-card>
                                 </template>
@@ -84,15 +106,15 @@
                             <draggable v-model="showTaskList" group="daily" @start="drag=true" @end="dragTaskEnd" animation="300">
                                 <template v-for="item in showTaskList">
                                     <el-card shadow="hover" :body-style="{color:item.color}" @click.native="handleOpenDetails(item)" class="task-card">
-                                        <el-row :gutter="18" :class="{'task-completed': item.completed || !item.isDue}">
-                                            <el-col :span="2" class="task-icon">
+                                        <el-row :gutter="18" :class="{'task-completed': item.completed || !item.isDue}" class="item-center">
+                                            <el-col :span="2" class="task-icon clickable">
                                                 <div v-if="item.completed" >
                                                 <i class="el-icon-circle-check" @click.stop="scoreTask(item, 'down')"></i>
                                                 </div>
                                                 <div v-else class="todo-circle" @click.stop="scoreTask(item, 'up')"></div>
                                             </el-col>
                                             <el-col :span="20">{{item.text}}<p>{{item.notes}}</p></el-col>
-                                            <el-col :span="2" class="task-icon" v-if="item.checklist && item.checklist.length > 0">
+                                            <el-col :span="2" class="task-icon clickable" v-if="item.checklist && item.checklist.length > 0">
                                                 <i :class="[item.collapseChecklist ? 'el-icon-arrow-left' : 'el-icon-arrow-down']"
                                                    @click.stop="item.collapseChecklist=!item.collapseChecklist;changeCollapseIcon(item.id,item.collapseChecklist);"></i>
                                             </el-col>
@@ -111,18 +133,19 @@
                             <draggable v-model="showTaskList" group="habit" @start="drag=true" @end="dragTaskEnd" animation="300">
                                 <template v-for="item in showTaskList">
                                     <el-card shadow="hover" :body-style="{color:item.color}" @click.native="handleOpenDetails(item)" class="task-card">
-                                        <el-row :gutter="18" :class="{'task-completed': item.completed}">
-                                            <el-col :span="2" class="task-icon">
+                                        <el-row :gutter="18" :class="{'task-completed': item.completed}" class="item-center">
+                                            <el-col :span="2" class="task-icon clickable">
                                                 <i v-if="item.completed" class="el-icon-circle-check" @click.stop="scoreTask(item, 'down')"></i>
                                                 <div v-else class="todo-circle" @click.stop="scoreTask(item, 'up')"></div>
                                             </el-col>
-                                            <el-col :span="20">{{item.text}}<p>{{item.notes}}</p>
-                                                <p class="count-task">{{item.dateMsg}}</p>
-                                            </el-col>
-                                            <el-col :span="2" class="task-icon" v-if="item.checklist && item.checklist.length > 0">
+                                            <el-col :span="20">{{item.text}}<p>{{item.notes}}</p></el-col>
+                                            <el-col :span="2" class="task-icon clickable" v-if="item.checklist && item.checklist.length > 0">
                                                 <i :class="[item.collapseChecklist ? 'el-icon-arrow-left' : 'el-icon-arrow-down']"
                                                    @click.stop="item.collapseChecklist=!item.collapseChecklist;changeCollapseIcon(item.id,item.collapseChecklist);"></i>
                                             </el-col>
+                                        </el-row>
+                                        <el-row class="item-center">
+                                            <el-col :span="22"><p class="count-task">{{item.dateMsg}}</p></el-col>
                                         </el-row>
                                         <div v-if="item.checklist && item.checklist.length > 0 && !item.collapseChecklist" @click.stop="doNone">
                                             <el-divider class="checklist-line"></el-divider>
@@ -134,11 +157,39 @@
                                 </template>
                             </draggable>
                         </div>
-                        <div id="party_list" v-show="menuVal===4">
+                        <div id="reward_list" v-show="menuVal===4">
+                            <draggable v-model="showTaskList" group="reward" @start="drag=true" @end="dragTaskEnd" animation="300">
+                                <template v-for="item in showTaskList">
+                                    <el-card shadow="hover" :body-style="{color:item.color}" @click.native="handleOpenDetails(item)" class="task-card">
+                                        <el-row :gutter="18" class="item-center">
+                                            <el-col :span="3">
+                                                <div class="clickable" @click.stop="scoreTask(item, 'down')">
+                                                    <div class="reward-icon">
+                                                        <svg viewBox="0 0 24 24">
+                                                            <g fill="none" fill-rule="evenodd">
+                                                                <circle cx="12" cy="12" r="12" fill="#FFA623"/>
+                                                                <path fill="#FFF" d="M6.3 17.7c-3.1-3.1-3.1-8.2 0-11.3 3.1-3.1 8.2-3.1 11.3 0" opacity=".5"/>
+                                                                <path fill="#FFF" d="M17.7 6.3c3.1 3.1 3.1 8.2 0 11.3-3.1 3.1-8.2 3.1-11.3 0" opacity=".25"/>
+                                                                <path fill="#BF7D1A" d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z" opacity=".5"/>
+                                                                <path fill="#BF7D1A" d="M13 9v2h-2V9H9v6h2v-2h2v2h2V9z" opacity=".75"/>
+                                                            </g>
+                                                        </svg>
+                                                    </div>
+                                                    <div class="reward-cost">{{item.cost}}</div>
+                                                </div>
+                                            </el-col>
+                                            <el-col :span="21">{{item.text}}<p>{{item.notes}}</p>
+                                            </el-col>
+                                        </el-row>
+                                    </el-card>
+                                </template>
+                            </draggable>
+                        </div>
+                        <div id="party_list" v-show="menuVal===5">
                             <template v-if="this.partyId">
                                 <el-timeline>
                                     <el-timeline-item placement="top" v-if="partyQuest.key" timestamp="队伍副本">
-                                        <el-card>
+                                        <el-card shadow="hover">
                                             <el-row :gutter="18" style="margin-top: -1em">
                                                 <el-col :span="partyQuest.active && !partyQuest.isAccept ? 24 : 18">
                                                     <h3>副本 “{{partyQuest.key}}” {{partyQuest.active ?  '进行中' : '开启邀请'}}</h3>
@@ -153,7 +204,7 @@
                                         </el-card>
                                     </el-timeline-item>
                                     <el-timeline-item :timestamp="item.user + ' （' + item.timestamp + '）'" placement="top" v-for="item in showTaskList">
-                                        <el-card>
+                                        <el-card shadow="hover">
                                             <p :class="{'system-message':item.user=='系统'}">{{item.text}}</p>
                                         </el-card>
                                     </el-timeline-item>
@@ -208,14 +259,14 @@
         <template v-for="item in undoneList">
             <el-card shadow="hover" :body-style="{color:item.color}" class="task-card">
                 <el-row :gutter="18" :class="{'task-completed': item.completed}">
-                    <el-col :span="3" class="task-icon">
+                    <el-col :span="3" class="task-icon clickable">
                         <div v-if="item.completed" >
                             <i class="el-icon-circle-check" @click="item.completed=!item.completed"></i>
                         </div>
                         <div v-else class="todo-circle" @click="item.completed=!item.completed"></div>
                     </el-col>
                     <el-col :span="18">{{item.text}}<p>{{item.notes}}</p></el-col>
-                    <el-col :span="3" class="task-icon" v-if="item.checklist.length > 0">
+                    <el-col :span="3" class="task-icon clickable" v-if="item.checklist.length > 0">
                         <i :class="[item.collapseChecklist ? 'el-icon-arrow-left' : 'el-icon-arrow-down']"
                            @click="item.collapseChecklist=!item.collapseChecklist;changeCollapseIcon(item.id,item.collapseChecklist);"></i>
                     </el-col>
@@ -243,10 +294,10 @@
             </el-form-item>
 
             <el-row :gutter="20" style="margin-bottom: 20px" v-if="menuVal===1">
-                <el-col :span="6" :offset="7" class="task-icon" :class="[taskDetails.up ? '' : 'task-icon-disable']">
+                <el-col :span="6" :offset="7" class="task-icon clickable" :class="[taskDetails.up ? '' : 'task-icon-disable']">
                     <i class="el-icon-circle-plus-outline" @click="taskDetails.up = !taskDetails.up"></i>
                 </el-col>
-                <el-col :span="6" class="task-icon" :class="[taskDetails.down ? '' : 'task-icon-disable']">
+                <el-col :span="6" class="task-icon clickable" :class="[taskDetails.down ? '' : 'task-icon-disable']">
                     <i class="el-icon-remove-outline" @click="taskDetails.down = !taskDetails.down"></i>
                 </el-col>
             </el-row>
@@ -258,7 +309,7 @@
                 </template>
             </el-form-item>
 
-            <el-form-item label="难度">
+            <el-form-item label="难度" v-if="menuVal!=4">
                 <el-select v-model="taskDetails.priority" placeholder="请选择难度" class="full-width">
                     <el-option label="琐事" value="0.1"></el-option>
                     <el-option label="简单" value="1"></el-option>
@@ -321,6 +372,10 @@
             <el-form-item label="截至" v-if="menuVal===3">
                 <el-date-picker v-model="taskDetails.date" align="center" type="date" placeholder="选择任务截至日期"
                                 :picker-options="pickerOptions" :clearable="false" class="full-width"></el-date-picker>
+            </el-form-item>
+
+            <el-form-item label="花费" v-if="menuVal===4">
+                <el-input-number v-model="taskDetails.value" size="small" controls-position="right" :min="0" class="full-width"></el-input-number>
             </el-form-item>
 
             <el-form-item id="taskDetail_Submit">
