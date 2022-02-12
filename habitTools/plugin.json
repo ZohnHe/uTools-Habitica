@@ -8,7 +8,7 @@
 	"features": [
 		{
 		    "code": "habitTools",
-		    "explain": "培养你的习惯",
+		    "explain": "培养你的习惯，做更好的自己",
             "cmds":["habit", "habitica"]
 		}
 	]

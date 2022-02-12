@@ -27,6 +27,7 @@ new Vue({
         isLoading: true,
         loginDialog: false,
         userForm: {user: "", key: ""},
+        userClass: '',
         userAvatarImg: "",
         name: "",
         username: "",
@@ -101,26 +102,17 @@ new Vue({
             haveHP: true,
             schedule: 0
         },
-        partyChat: []
+        partyChat: [],
+        clickSkillKey: null,
+        clickSkillName: null,
+        isShowSkillTasks: false,
     },
     methods: {
-        onRegistered() {openBrowser("https://habitica.com/static/home");},
+        onRegistered() {openBrowser(API_ROOT + "/static/home");},
         doNone() {return false;},
         showErrMsg(msg) {
-            let showMsg = "";
-            if (msg == null) {
-                showMsg = "与Habitica通信异常，需检查网络环境";
-            } else if (msg === 429) {
-                showMsg = "操作频繁，休息一会";
-            } else if (msg === 400) {
-                showMsg = "提交内容有误";
-            } else if (msg === 401) {
-                showMsg = "不允许的操作";
-            } else {
-                showMsg = "失去同步，" + msg;
-            }
             let that = this;
-            setTimeout(function () {that.$message.error(showMsg);}, 200);
+            setTimeout(function () {that.$message.error(msg);}, 200);
         },
         loginHabitica() {
             let user = this.userForm.user;
@@ -141,7 +133,7 @@ new Vue({
                     this.isLoading = false;
                 } else {
                     this.loginDialog = true;
-                    this.showErrMsg(data == null ? data : data + " 校验失败");
+                    this.showErrMsg(data);
                 }
             });
         },
@@ -172,9 +164,6 @@ new Vue({
                 if (success) {
                     this.refreshData(data, load);
                 } else {
-                    if (data != null && data !== 429) {
-                        this.onLogout();
-                    }
                     load.close();
                     this.showErrMsg(data);
                 }
@@ -196,6 +185,7 @@ new Vue({
             this.MP = userInfo.stats.mp;
             this.maxMP = userInfo.stats.maxMP;
             this.GP = userInfo.stats.gp;
+            this.userClass = userInfo.stats.class;
             this.userAvatarImg = "./src/static/svg/" + userInfo.stats.class + ".svg";
             this.partyId = userInfo.party._id;
             this.isLoading = false;
@@ -395,6 +385,42 @@ new Vue({
         formatEXP(percentage) {return ~~this.EXP;},
         formatMP(percentage) {return ~~this.MP;},
         changeCollapseIcon(id, collapseChecklist) {updateHBTask(id, {"collapseChecklist": collapseChecklist},()=>{});},
+        notifyMsg(msg, type) {
+            this.$notify({message: msg, position: 'bottom-left', type: type, duration: 2000, offset:70});
+        },
+        async modifyStatus(hp, lvl, exp, mp, gp) {
+            if (hp < this.HP) {
+                await this.notifyMsg('生命：-' + (this.HP - hp).toFixed(2), 'warning');
+            }
+            if (hp <= 0) {
+                this.HP = 0;
+                this.openHabitica();
+            } else {
+                this.HP = hp;
+            }
+            if (lvl > this.level) {
+                await this.notifyMsg('经验：+' + (this.maxEXP - this.EXP + exp).toFixed(2), 'success');
+                await this.notifyMsg('恭喜升级了！', 'success');
+            } else if (exp < this.EXP) {
+                await this.notifyMsg('经验：-' + (this.EXP - exp).toFixed(2), 'warning');
+            } else if (exp > this.EXP){
+                await this.notifyMsg('经验：+' + (exp - this.EXP).toFixed(2), 'success');
+            }
+            this.level = lvl;
+            this.EXP = exp;
+            if (mp < this.MP) {
+                await this.notifyMsg('魔法：-' + (this.MP - mp).toFixed(2), 'warning');
+            } else if (mp > this.MP){
+                await this.notifyMsg('魔法：+' + (mp - this.MP).toFixed(2), 'success');
+            }
+            this.MP = mp;
+            if (gp < this.GP) {
+                await this.notifyMsg('金币：-' + (this.GP - gp).toFixed(2), 'warning');
+            } else if (gp > this.GP){
+                await this.notifyMsg('金币：+' + (gp - this.GP).toFixed(2), 'success');
+            }
+            this.GP = gp;
+        },
         scoreTask(task, direction) {
             if (this.requestLock) {
                 return;
@@ -404,7 +430,7 @@ new Vue({
             if (menuVal === 1 && ((direction === 'up' && !task.up) || (direction === 'down' && !task.down))) {
                 return;
             }
-            scoreHBTask(task.id, direction, async (success, data) => {
+            scoreHBTask(task.id, direction, (success, data) => {
                 if (success) {
                     let selectTag = this.selectTag;
                     if (menuVal === 1) {
@@ -422,43 +448,8 @@ new Vue({
                         task.color = getColorByValue(task.value);
                         this.selectTag = 0;
                     }
-
-                    let hp = data.hp;
-                    if (hp < this.HP) {
-                        await this.$notify({message: '生命：-' + (this.HP - hp).toFixed(2), position: 'bottom-left', type: 'warning', duration: 2000, offset:70});
-                    }
-                    if (hp <= 0) {
-                        this.HP = 0;
-                        this.openHabitica();
-                    } else {
-                        this.HP = hp;
-                    }
-                    if (data.lvl > this.level) {
-                        await this.$notify({message: '经验：+' + (this.maxEXP - this.EXP + data.exp).toFixed(2), position: 'bottom-left', type: 'success', duration: 2000, offset:70});
-                        await this.$notify({message: '升级了！', position: 'bottom-left', type: 'success', duration: 2000, offset:70});
-                    } else if (data.exp < this.EXP) {
-                        await this.$notify({message: '经验：-' + (this.EXP - data.exp).toFixed(2), position: 'bottom-left', type: 'warning', duration: 2000, offset:70});
-                    } else if (data.exp > this.EXP){
-                        await this.$notify({message: '经验：+' + (data.exp - this.EXP).toFixed(2), position: 'bottom-left', type: 'success', duration: 2000, offset:70});
-                    }
-                    this.level = data.lvl;
-                    this.EXP = data.exp;
-                    if (data.mp < this.MP) {
-                        await this.$notify({message: '魔法：-' + (this.MP - data.mp).toFixed(2), position: 'bottom-left', type: 'warning', duration: 2000, offset:70});
-                    } else if (data.mp > this.MP){
-                        await this.$notify({message: '魔法：+' + (data.mp - this.MP).toFixed(2), position: 'bottom-left', type: 'success', duration: 2000, offset:70});
-                    }
-                    this.MP = data.mp;
-                    if (data.gp < this.GP) {
-                        await this.$notify({message: '金币：-' + (this.GP - data.gp).toFixed(2), position: 'bottom-left', type: 'warning', duration: 2000, offset:70});
-                    } else if (data.gp > this.GP){
-                        await this.$notify({message: '金币：+' + (data.gp - this.GP).toFixed(2), position: 'bottom-left', type: 'success', duration: 2000, offset:70});
-                    }
-                    this.GP = data.gp;
+                    this.modifyStatus(data.hp, data.lvl, data.exp, data.mp, data.gp);
                 } else {
-                    if (menuVal === 4 && data === 401) {
-                        data = "金币不足";
-                    }
                     this.showErrMsg(data);
                 }
                 this.requestLock = false;
@@ -684,7 +675,6 @@ new Vue({
                             text: text,
                             user: user,
                             timestamp: new Date(chat.timestamp).toLocaleString('zh', {hour12: false}),
-                            canDel: userId === chat.uuid //todo del
                         });
                     }
                     this.$message({message: '同步完成', center: true, type: 'success', duration: 1000});
@@ -708,7 +698,7 @@ new Vue({
                         this.partyQuest.active = true;
                     }
                 } else {
-                    this.showErrMsg(data === 401 ? "已经不能再加入了" : data);
+                    this.showErrMsg(data);
                 }
             });
         },
@@ -723,7 +713,7 @@ new Vue({
                         this.partyQuest.isAccept = false;
                         this.partyQuest.joinMembers--;
                     } else {
-                        this.showErrMsg(data === 401 ? "副本发起者不能离开副本" : data);
+                        this.showErrMsg(data);
                     }
                 })
             });
@@ -752,6 +742,27 @@ new Vue({
                     this.showErrMsg(data);
                 }
             });
+        },
+        castSkill(key, name, target) {
+            castHabiticaSkill(key, target, async (success, data) => {
+                if (success) {
+                    await this.notifyMsg('使出了' + name, 'success');
+                    this.modifyStatus(data.hp, data.lvl, data.exp, data.mp, data.gp);
+                } else {
+                    this.showErrMsg(data);
+                }
+            });
+            this.closeSkillTask();
+        },
+        showSkillTask(key, name) {
+            this.isShowSkillTasks = true;
+            this.clickSkillKey = key;
+            this.clickSkillName = name;
+        },
+        closeSkillTask() {
+            this.isShowSkillTasks = false;
+            this.clickSkillKey = null;
+            this.clickSkillName = null;
         }
     },
     mounted() {utools.onPluginEnter(() => this.onSynchronousData());},
