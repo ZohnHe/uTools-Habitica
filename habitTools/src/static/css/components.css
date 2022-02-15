@@ -288,3 +288,15 @@ html,body,#app,.el-container,.full-screen{
 .el-tabs__item:hover, .el-tabs__item.is-active{
     color: #432874;
 }
+#healthGoldIcon {
+    width: 18px;
+    padding-left: 25%;
+    padding-right: 5px;
+    float: left;
+}
+#healthCost {
+    font: 14px Extra Small;
+    color: #8A4B00;
+    text-align: left;
+    padding-top: 1px;
+}

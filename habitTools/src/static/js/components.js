@@ -32,6 +32,7 @@ new Vue({
         name: "",
         username: "",
         level: 0,
+        sleep: false,
         HP: 0,
         EXP: 0,
         maxEXP: 0,
@@ -173,6 +174,7 @@ new Vue({
             this.name = userInfo.profile.name;
             this.username = userInfo.auth.local.username;
             this.level = userInfo.stats.lvl;
+            this.sleep = userInfo.preferences.sleep;
             let hp = userInfo.stats.hp;
             if (hp <= 0) {
                 this.HP = 0;
@@ -727,8 +729,10 @@ new Vue({
             }
             let target = 0;
             let arr = this.menuVal === 1 ? this.habitList : this.menuVal === 2 ? this.dailyList : this.menuVal === 3 ? this.todoList : this.menuVal === 4 ? this.rewardList : [];
+
+            let relative = oldIndex < newIndex ? newIndex - 1 : newIndex + 1;
             for (let i = 0; i < arr.length; i++) {
-                if (this.showTaskList[oldIndex < newIndex ? newIndex - 1 : newIndex + 1].id === arr[i].id) {
+                if (this.showTaskList[relative].id === arr[i].id) {
                     target = i;
                     break;
                 }
@@ -763,6 +767,27 @@ new Vue({
             this.isShowSkillTasks = false;
             this.clickSkillKey = null;
             this.clickSkillName = null;
+        },
+        buyHealth() {
+            buyHealthPotion(async (success, data) => {
+                if (success) {
+                    await this.notifyMsg('购买了治疗药水', 'success');
+                    this.modifyStatus(data.hp, data.lvl, data.exp, data.mp, data.gp);
+                } else {
+                    this.showErrMsg(data);
+                }
+            });
+        },
+        userSleep() {
+            let target = !this.sleep;
+            sleep(target,async (success, data) => {
+                if (success) {
+                    await this.notifyMsg(target ? "已暂停任务伤害" : "已开启任务伤害", 'success');
+                    this.sleep = target;
+                } else {
+                    this.showErrMsg(data);
+                }
+            });
         }
     },
     mounted() {utools.onPluginEnter(() => this.onSynchronousData());},
@@ -804,7 +829,9 @@ new Vue({
             this.showTaskList = [];
             let oldArr = this.conservedTag.join(DB_KEY_SPLIT);
             if (newVal === 1) {
-                this.showTaskList = this.habitList;
+                for (let i = 0; i < this.habitList.length; ++i) {
+                    this.showTaskList.push(this.habitList[i]);
+                }
                 this.conservedTag[0] = newVal;
             } else if (newVal === 2 || newVal === 3) {
                 for (let i = 0; i < this.habitList.length; ++i) {
@@ -814,7 +841,9 @@ new Vue({
                 }
                 this.conservedTag[0] = newVal;
             } else if (newVal === 4) {
-                this.showTaskList = this.dailyList;
+                for (let i = 0; i < this.dailyList.length; ++i) {
+                    this.showTaskList.push(this.dailyList[i]);
+                }
                 this.conservedTag[1] = newVal;
             } else if (newVal === 5 || newVal === 6) {
                 for (let i = 0; i < this.dailyList.length; ++i) {
