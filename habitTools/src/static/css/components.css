@@ -1,3 +1,6 @@
+html {
+    background-color: rgb(238, 241, 246);
+}
 html,body,#app,.el-container,.full-screen{
     width: 100%;
     height: 100%;
@@ -118,6 +121,7 @@ html,body,#app,.el-container,.full-screen{
 #content {
     border: 1px solid #432874;
     border-radius: 5px;
+    background-color: #FFFFFF;
 }
 .el-row {
     height: 100%;
