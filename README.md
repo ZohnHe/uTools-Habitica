@@ -1,12 +1,17 @@
 # uTools-Habitica （HabitTools）
 对前端完全懵逼的苦逼后端小开发慢慢琢磨的一个针对 uTools 的 Habitica 第三方插件。
 
-而 **Habitica** 是一个习惯养成及提高生产力的应用，游戏化你的人生，了解详情点击：
+**uTools** 是新一代效率工具平台，拥有丰富插件，可自由组合搭配，提高自己办公生产力。
+了解详情点击：
+- [🔗 uTools官网](http://www.u.tools/)
+
+而 **Habitica** 是一个习惯养成及提高生产力的应用，游戏化你的人生。
+了解详情点击：
 - [🔗 把枯燥任务变成有趣的游戏，你只需要这个APP](https://zhuanlan.zhihu.com/p/58660347)
 - [🔗 拖延症如何用好Habitica](https://www.zhihu.com/question/36371438)
 
 目前处于 **持续精进** 阶段，技术不佳，估计还有些问题，跪求指导 ...(ノ ＿ ＿)ノ
-- 联系邮箱：zohnhe@aliyun.com
+- 联系邮箱：💬zohnhe@aliyun.com
 - 论坛帖子：[🔗 一个关于 Habitica 的第三方插件~~](https://yuanliao.info/d/3764-habittools-120-beta-habitica)
 
 ## 未来计划（需求池）
