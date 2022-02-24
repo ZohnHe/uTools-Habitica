@@ -1,7 +1,7 @@
 # uTools-Habitica （HabitTools）
 对前端完全懵逼的苦逼后端小开发慢慢琢磨的一个针对 uTools 的 Habitica 第三方插件。
 
-**uTools** 是新一代效率工具平台，拥有丰富插件，可自由组合搭配，提高自己办公生产力。
+**uTools** 是新一代效率工具平台，拥有丰富插件，本插件也是其中一个。可自由组合搭配，提高办公生产力。
 了解详情点击：
 - [🔗 uTools官网](http://www.u.tools/)
 
