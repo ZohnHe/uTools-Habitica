@@ -61,13 +61,13 @@
                 <el-header>
                     <el-row :gutter="28" type="flex" align="middle">
                         <el-col :span="8">
-                            <el-progress :text-inside="true" :stroke-width="23" :percentage="HP/50*100" :title="HP" status="exception" :format="formatHP"></el-progress>
+                            <el-progress :text-inside="true" :stroke-width="23" :percentage="HP<=0?0:HP/50*100" :title="HP" status="exception" :format="formatHP"></el-progress>
                         </el-col>
                         <el-col :span="8">
-                            <el-progress :text-inside="true" :stroke-width="23" :percentage="EXP/maxEXP*100" :title="EXP" status="warning" :format="formatEXP"></el-progress>
+                            <el-progress :text-inside="true" :stroke-width="23" :percentage="EXP<=0?0:EXP/maxEXP*100" :title="EXP" status="warning" :format="formatEXP"></el-progress>
                         </el-col>
                         <el-col :span="8">
-                            <el-progress :text-inside="true" :stroke-width="23" :percentage="MP/maxMP*100"  :title="MP" :format="formatMP"></el-progress>
+                            <el-progress :text-inside="true" :stroke-width="23" :percentage="MP<=0?0:MP/maxMP*100"  :title="MP" :format="formatMP"></el-progress>
                         </el-col>
                     </el-row>
                 </el-header>
@@ -99,9 +99,7 @@
                                     <el-card shadow="hover" :body-style="{color:item.color}" @click.native="handleOpenDetails(item)" class="task-card">
                                         <el-row :gutter="18" :class="{'task-completed': item.completed || !item.isDue}" class="item-center">
                                             <el-col :span="2" class="task-icon clickable">
-                                                <div v-if="item.completed" >
-                                                <i class="el-icon-circle-check" @click.stop="scoreTask(item, 'down')"></i>
-                                                </div>
+                                                <div v-if="item.completed" ><i class="el-icon-circle-check" @click.stop="scoreTask(item, 'down')"></i></div>
                                                 <div v-else class="todo-circle" @click.stop="scoreTask(item, 'up')"></div>
                                             </el-col>
                                             <el-col :span="20">{{item.text}}<p>{{item.notes}}</p></el-col>
@@ -399,7 +397,7 @@
                             <template v-if="this.partyId">
                                 <el-timeline>
                                     <el-timeline-item placement="top" v-if="partyQuest.key" timestamp="队伍副本">
-                                        <el-card shadow="hover">
+                                        <el-card>
                                             <el-row :gutter="18" style="margin-top: -1em">
                                                 <el-col :span="partyQuest.active && !partyQuest.isAccept ? 24 : 18">
                                                     <h3>副本 “{{partyQuest.key}}” {{partyQuest.active ?  '进行中' : '开启邀请'}}</h3>
@@ -581,7 +579,7 @@
 
             <el-form-item label="截至" v-if="menuVal===3">
                 <el-date-picker v-model="taskDetails.date" align="center" type="date" placeholder="选择任务截至日期"
-                                :picker-options="pickerOptions" :clearable="false" class="full-width"></el-date-picker>
+                                :picker-options="pickerOptions" class="full-width"></el-date-picker>
             </el-form-item>
 
             <el-form-item label="花费" v-if="menuVal===4">

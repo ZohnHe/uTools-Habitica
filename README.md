@@ -7,6 +7,7 @@
 
 而 **Habitica** 是一个习惯养成及提高生产力的应用，游戏化你的人生。
 > 了解详情点击：
+> - [🔗 官方介绍](https://habitica.com/static/features)
 > - [🔗 把枯燥任务变成有趣的游戏，你只需要这个APP](https://zhuanlan.zhihu.com/p/58660347)
 > - [🔗 拖延症如何用好Habitica](https://www.zhihu.com/question/36371438)
 
@@ -28,8 +29,8 @@
 - [ ] 加强副本相关信息显示
 
 ## ⭐ 食用方法
-1. 下载uTools（如已安装忽略）
-2. 应用商店内搜索 [HabitTools] 并安装
+1. 下载【uTools】（如已安装忽略）
+2. 应用商店内搜索【HabitTools】并安装
 3. 登录Habitica页面，在右上角找到【设定】 👉 选择【API/应用程序接口】 👉 找到对应的 【用户ID】和【API令牌】
 4. 输入并登录 👉 开始游戏
 

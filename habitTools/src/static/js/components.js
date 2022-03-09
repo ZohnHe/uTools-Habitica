@@ -177,11 +177,9 @@ new Vue({
             this.sleep = userInfo.preferences.sleep;
             let hp = userInfo.stats.hp;
             if (hp <= 0) {
-                this.HP = 0;
                 this.openHabitica();
-            } else {
-                this.HP = hp;
             }
+            this.HP = hp;
             this.EXP = userInfo.stats.exp;
             this.maxEXP = userInfo.stats.toNextLevel;
             this.MP = userInfo.stats.mp;
@@ -392,34 +390,32 @@ new Vue({
         },
         async modifyStatus(hp, lvl, exp, mp, gp) {
             if (hp < this.HP) {
-                await this.notifyMsg('生命：-' + (this.HP - hp).toFixed(2), 'warning');
+                await this.notifyMsg('生命 -' + (this.HP - hp).toFixed(2), 'warning');
             }
             if (hp <= 0) {
-                this.HP = 0;
                 this.openHabitica();
-            } else {
-                this.HP = hp;
             }
+            this.HP = hp;
             if (lvl > this.level) {
-                await this.notifyMsg('经验：+' + (this.maxEXP - this.EXP + exp).toFixed(2), 'success');
+                await this.notifyMsg('经验 +' + (this.maxEXP - this.EXP + exp).toFixed(2), 'success');
                 await this.notifyMsg('恭喜升级了！', 'success');
             } else if (exp < this.EXP) {
-                await this.notifyMsg('经验：-' + (this.EXP - exp).toFixed(2), 'warning');
+                await this.notifyMsg('经验 -' + (this.EXP - exp).toFixed(2), 'warning');
             } else if (exp > this.EXP){
-                await this.notifyMsg('经验：+' + (exp - this.EXP).toFixed(2), 'success');
+                await this.notifyMsg('经验 +' + (exp - this.EXP).toFixed(2), 'success');
             }
             this.level = lvl;
             this.EXP = exp;
             if (mp < this.MP) {
-                await this.notifyMsg('魔法：-' + (this.MP - mp).toFixed(2), 'warning');
+                await this.notifyMsg('魔法 -' + (this.MP - mp).toFixed(2), 'warning');
             } else if (mp > this.MP){
-                await this.notifyMsg('魔法：+' + (mp - this.MP).toFixed(2), 'success');
+                await this.notifyMsg('魔法 +' + (mp - this.MP).toFixed(2), 'success');
             }
             this.MP = mp;
             if (gp < this.GP) {
-                await this.notifyMsg('金币：-' + (this.GP - gp).toFixed(2), 'warning');
+                await this.notifyMsg('金币 -' + (this.GP - gp).toFixed(2), 'warning');
             } else if (gp > this.GP){
-                await this.notifyMsg('金币：+' + (gp - this.GP).toFixed(2), 'success');
+                await this.notifyMsg('金币 +' + (gp - this.GP).toFixed(2), 'success');
             }
             this.GP = gp;
         },
@@ -580,6 +576,7 @@ new Vue({
             }
         },
         onUpdateTask() {
+            this.createSubTask();
             updateHBTask(this.taskDetails.id, this.taskDetails, (success, data) => {
                 if (success) {
                     this.onSynchronousData();
