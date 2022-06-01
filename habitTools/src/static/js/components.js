@@ -449,6 +449,8 @@ new Vue({
                         }
                     } else if (menuVal !== 4) {
                         if (selectTag === 9) {
+                            let now = new Date();
+                            task.dateMsg = getDateReminder(now, task.date);
                             this.todoList.push(task);
                             this.undoTodoNum++;
                         }
@@ -875,9 +877,9 @@ new Vue({
                         this.showErrMsg(data);
                         return;
                     }
-                    let now = new Date();
                     for (let i = 0; i < data.length; ++i) {
                         let task = data[i];
+                        let cDate = new Date(task.dateCompleted).toLocaleString('zh', {hour12: false});
                         this.showTaskList.push({
                             id: task.id,
                             text: task.text,
@@ -887,7 +889,7 @@ new Vue({
                             collapseChecklist: task.collapseChecklist,
                             checklist: task.checklist,
                             date: task.date,
-                            dateMsg: getDateReminder(now, task.date)
+                            dateMsg: "完成时间：" + cDate
                         });
                     }
                     this.conservedTag[2] = newVal;

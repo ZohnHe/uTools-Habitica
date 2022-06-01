@@ -463,12 +463,12 @@
         <div id="loginDrawer" class="full-screen">
             <el-form ref="form" :model="userForm" id="loginForm">
                 <el-form-item>
-                    <el-tooltip class="item" effect="light" content="打开页面上的 [设定] -> [API/应用程序接口] 即可看到" placement="top-start" open-delay=1000>
+                    <el-tooltip class="item" effect="light" content="打开页面上的 [设定] -> [API/应用程序接口] 即可看到" placement="top-start" :open-delay="1000">
                         <el-input v-model="userForm.user" maxlength="36" show-word-limit placeholder="用户ID"></el-input>
                     </el-tooltip>
                 </el-form-item>
                 <el-form-item>
-                    <el-tooltip class="item" effect="light" content="信息会加密保存在你自己的账号数据里，可随时删除" placement="bottom-start" open-delay=1000>
+                    <el-tooltip class="item" effect="light" content="信息会加密保存在你自己的账号数据里，可随时删除" placement="bottom-start" :open-delay="1000">
                         <el-input v-model="userForm.key" maxlength="36" show-word-limit placeholder="API令牌"></el-input>
                     </el-tooltip>
                 </el-form-item>
