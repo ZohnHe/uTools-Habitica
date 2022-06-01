@@ -431,8 +431,8 @@
                                         </el-card>
                                     </el-timeline-item>
                                     <el-timeline-item :timestamp="item.user + ' （' + item.timestamp + '）'" placement="top" v-for="item in showTaskList">
-                                        <el-card shadow="hover">
-                                            <p :class="{'system-message':item.user=='系统'}"><div class="task-title" v-html="markedText(item.text)"></div></p>
+                                        <el-card>
+                                            <div class="task-title" :class="{'system-message':item.user=='系统'}" v-html="markedText(item.text)"></div>
                                         </el-card>
                                     </el-timeline-item>
                                 </el-timeline>

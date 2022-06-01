@@ -204,6 +204,8 @@ new Vue({
                 this.todoList = [];
                 this.rewardList = [];
                 this.undoneList = [];
+                this.undoDailyNum = 0;
+                this.undoTodoNum = 0;
                 let now = new Date();
                 for (let i = 0; i < data.length; ++i) {
                     let task = data[i];
