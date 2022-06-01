@@ -107,6 +107,8 @@ new Vue({
         clickSkillKey: null,
         clickSkillName: null,
         isShowSkillTasks: false,
+        undoDailyNum: 0,
+        undoTodoNum: 0
     },
     methods: {
         onRegistered() {openBrowser(API_ROOT + "/static/home");},
@@ -220,13 +222,14 @@ new Vue({
                             frequency: task.frequency
                         });
                     } else if (task.type === "daily") {
+                        let due = task.isDue;
                         this.dailyList.push({
                             id: task.id,
                             text: task.text,
                             notes: task.notes,
                             color: getColorByValue(task.value),
                             completed: task.completed,
-                            isDue: task.isDue,
+                            isDue: due,
                             repeat: task.repeat,
                             everyX: task.everyX,
                             collapseChecklist: task.collapseChecklist,
@@ -239,6 +242,9 @@ new Vue({
                             daysOfMonth: task.daysOfMonth,
                             weeksOfMonth: task.weeksOfMonth
                         });
+                        if (due) {
+                            this.undoDailyNum++;
+                        }
                     } else if (task.type === "todo") {
                         this.todoList.push({
                             id: task.id,
@@ -252,6 +258,7 @@ new Vue({
                             dateMsg: getDateReminder(now, task.date),
                             priority: String(task.priority),
                         });
+                        this.undoTodoNum++;
                     } else if (task.type === "reward") {
                         this.rewardList.push({
                             id: task.id,
@@ -441,8 +448,17 @@ new Vue({
                     } else if (menuVal !== 4) {
                         if (selectTag === 9) {
                             this.todoList.push(task);
+                            this.undoTodoNum++;
                         }
-                        task.completed = !task.completed;
+                        let after = !task.completed;
+                        if (menuVal === 2) {
+                            if (after) {
+                                this.undoDailyNum--;
+                            } else {
+                                this.undoDailyNum++;
+                            }
+                        }
+                        task.completed = after;
                         task.color = getColorByValue(task.value);
                         this.selectTag = 0;
                     }
@@ -659,20 +675,10 @@ new Vue({
                     for (let i = 0; i < data.chat.length; ++i) {
                         let chat = data.chat[i];
                         let user = chat.user;
-                        let text = chat.text;
-                        if (!user) {
-                            text = text.replaceAll('`', '');
-                            user = "系统";
-                        }
-                        let match = text.match(/\[(.*?)\]\((.*?)\)/);
-                        while (match) {
-                            text = text.replaceAll(match[0], match[1]);
-                            match = text.match(/\[(.*?)\]\((.*?)\)/);
-                        }
                         this.partyChat.push({
                             id: chat._id,
-                            text: text,
-                            user: user,
+                            text: chat.text,
+                            user: user ? user : '系统',
                             timestamp: new Date(chat.timestamp).toLocaleString('zh', {hour12: false}),
                         });
                     }
@@ -785,6 +791,10 @@ new Vue({
                     this.showErrMsg(data);
                 }
             });
+        },
+        markedText(text) {
+            if (typeof text == 'undefined' || text == null) return '';
+            return marked(text, {sanitize: true, smartLists: true});
         }
     },
     mounted() {utools.onPluginEnter(() => this.onSynchronousData());},
