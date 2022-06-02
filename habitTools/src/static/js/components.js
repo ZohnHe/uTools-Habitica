@@ -801,7 +801,15 @@ new Vue({
             return marked(text, {sanitize: true, smartLists: true});
         }
     },
-    mounted() {utools.onPluginEnter(() => this.onSynchronousData());},
+    mounted() {
+        window.addEventListener("click", e => {
+            let el = e.target;
+            if (el.tagName === 'A') {
+                utools.shellOpenExternal(el.href);
+            }
+        });
+        utools.onPluginEnter(() => this.onSynchronousData());
+    },
     filters: {
         ellipsisName: function(value) {
             if (!value) return '';

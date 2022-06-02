@@ -106,7 +106,7 @@ html,body,#app,.el-container,.full-screen{
 .el-link.el-link--default {
     color: #432874;
 }
-.el-menu-item.is-active {
+.el-menu-item.is-active,.el-menu-item.is-active .el-badge__content {
     color: #432874;
     font-weight: bold;
 }
@@ -115,7 +115,7 @@ html,body,#app,.el-container,.full-screen{
 }
 .badge-num .el-badge__content {
     background-color: #EEF1F6;
-    color: #432874;
+    color: #909399;
 }
 #class-tag {
     position: fixed;
