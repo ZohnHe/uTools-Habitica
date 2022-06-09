@@ -209,6 +209,15 @@ function sleep(state, doAfter) {
     });
 }
 
+function startPartyQuest(partyId, doAfter) {
+    axios.post(PARTY_URL + partyId + "/quests/force-start", {}, {headers: headers}).then(rsp => {
+        rsp.data.success ? doAfter(true, rsp.data.data) : doAfter(false, rsp.data.error);
+    }).catch(err => {
+        console.error("startPartyQuest error: ", err);
+        doAfter(false, getErrResponseMsg(err));
+    });
+}
+
 function findQuestNameByKey(key) {
     let name = QUEST_MAP[key];
     return name ? name : key;

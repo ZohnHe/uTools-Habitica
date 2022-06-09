@@ -101,7 +101,8 @@ new Vue({
             key: "",
             isAccept: false,
             haveHP: true,
-            schedule: 0
+            schedule: 0,
+            canStartQuest: true
         },
         partyChat: [],
         clickSkillKey: null,
@@ -608,7 +609,7 @@ new Vue({
             });
         },
         onDeleteTask(id) {
-            this.$confirm('确定删除？', '提示', {
+            this.$confirm('确定要删除该任务？', '提示', {
                 confirmButtonText: '很确定',
                 cancelButtonText: '手抖了',
                 type: 'warning'
@@ -654,26 +655,13 @@ new Vue({
                             }
                         }
                     }
-                    let progress = data.quest.progress;
-                    let haveHp = !!progress.hp;
-                    let schedule = "";
-                    if (haveHp) {
-                        schedule = progress.hp.toFixed(2);
-                    } else {
-                        for(let key in progress.collect) {
-                            let name = findCollectNameByKey(key);
-                            schedule += name + ": " + progress.collect[key] + ", ";
-                        }
-                        schedule = schedule.substr(0, schedule.length - 2);
-                    }
-                    this.partyQuest = {
-                        active: data.quest.active,
-                        joinMembers: joinCount,
-                        key: questKey,
-                        isAccept: isAccept,
-                        haveHP: haveHp,
-                        schedule: schedule
-                    };
+                    this.setQuestProgress(data.quest.progress);
+                    let active = data.quest.active;
+                    this.partyQuest.active = active;
+                    this.partyQuest.joinMembers = joinCount;
+                    this.partyQuest.key = questKey;
+                    this.partyQuest.isAccept = isAccept;
+                    this.partyQuest.canStartQuest = !active && (userId === data.quest.leader || userId === data.leader.id);
                     this.partyMembers = data.memberCount;
                     this.partyChat = [];
                     for (let i = 0; i < data.chat.length; ++i) {
@@ -712,7 +700,7 @@ new Vue({
             });
         },
         quitOutQuest() {
-            this.$confirm('退出副本？退出后将不能再次加入', '提示', {
+            this.$confirm('确定要退出副本吗？退出后将不能再次加入。', '提示', {
                 confirmButtonText: '很确定',
                 cancelButtonText: '手抖了',
                 type: 'warning'
@@ -799,6 +787,38 @@ new Vue({
         markedText(text) {
             if (typeof text == 'undefined' || text == null) return '';
             return marked(text, {sanitize: true, smartLists: true});
+        },
+        setQuestProgress(progress) {
+            let haveHp = !!progress.hp;
+            let schedule = "";
+            if (haveHp) {
+                schedule = progress.hp.toFixed(2);
+            } else {
+                for(let key in progress.collect) {
+                    let name = findCollectNameByKey(key);
+                    schedule += name + "(" + progress.collect[key] + ")、";
+                }
+                schedule = schedule.substr(0, schedule.length - 1);
+            }
+            this.partyQuest.haveHP = haveHp;
+            this.partyQuest.schedule = schedule;
+        },
+        startQuest() {
+            this.$confirm('确定要开启这个副本吗？不是所有队员都接受了该副本邀请。当所有成员都参加了副本，副本将会自动开启。', '提示', {
+                confirmButtonText: '很确定',
+                cancelButtonText: '手抖了',
+                type: 'warning'
+            }).then(() => {
+                startPartyQuest(this.partyId,(success, data) => {
+                    if (success) {
+                        this.partyQuest.active = true;
+                        this.setQuestProgress(data.progress);
+                        this.partyQuest.canStartQuest = false;
+                    } else {
+                        this.showErrMsg(data);
+                    }
+                })
+            });
         }
     },
     mounted() {

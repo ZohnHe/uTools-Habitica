@@ -17,8 +17,31 @@ html,body,#app,.el-container,.full-screen{
 .full-width {
     width: 100% !important;
 }
-.common-color {
-    color: #606266;
+.el-button--default,.el-button--default:hover,.el-button--default:focus,.el-button--default *:hover {
+    background-color: #FFFFFF;
+    border-color: #dcdfe6;
+    color: #432874;
+}
+.el-button--default:hover,.el-button--default:focus,.el-button--default *:hover {
+    color: #5d3b9c;
+}
+.el-button--primary {
+    background-color: #4F2A93;
+    border-color: #432874;
+    color: #FFFFFF;
+}
+.el-button--primary:hover,.el-button--primary:focus,.el-button--primary *:hover {
+    background-color: #612CA7;
+    border-color: #5d3b9c;
+    color: #FFFFFF;
+}
+.el-button--text {
+    color: #432874;
+    width: 60px;
+}
+.el-button--text:hover,.el-button--text:focus {
+    color: #612CA7;
+    width: 60px;
 }
 /*加载图标*/
 #start_image {
@@ -51,15 +74,16 @@ html,body,#app,.el-container,.full-screen{
     color: #333;
 }
 /*左侧*/
-.el-aside {
-    background-color: rgb(238, 241, 246);
+#aside {
+    width: 200px !important;
+    background-color: #EEF1F6;
 }
-.el-avatar {
-    background-color: rgb(238, 241, 246);
+#avatar {
+    background-color: #EEF1F6;
     width: 30px;
     height: 30px;
 }
-.el-avatar>img {
+#avatar>img {
     height: 100%;
 }
 .el-badge__content {
@@ -67,7 +91,7 @@ html,body,#app,.el-container,.full-screen{
 }
 #habitica_title {
     font-size: 12px;
-    background-color: rgb(238, 241, 246);
+    background-color: #EEF1F6;
 }
 #user_avatar {
     position: relative;
@@ -86,18 +110,10 @@ html,body,#app,.el-container,.full-screen{
     margin: 0.4em 0;
     color: #432874;
 }
-.el-button--text {
-    color: #432874;
-    width: 60px;
-}
-.el-button--primary,.el-button--primary:focus, .el-button--primary:hover {
-    background-color: #4F2A93;
-    border-color: #432874;
-}
 .el-popover {
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .5);
 }
-.el-menu {
+#menu {
     border-right: none;
 }
 .el-menu-item {
@@ -169,10 +185,7 @@ html,body,#app,.el-container,.full-screen{
 .clickable :hover {
     cursor: pointer;
 }
-.task-icon-disable {
-    color: #C3C0C8;
-}
-#habit_list .task-icon-disable :hover {
+#habit_list .task-completed :hover {
     cursor: not-allowed;
 }
 .task-completed {
@@ -234,10 +247,6 @@ html,body,#app,.el-container,.full-screen{
 .el-notification {
     width: 200px;
 }
-.habitica-btn {
-    background-color: #4F2A93;
-    border-color: #432874;
-}
 .el-dialog {
     border-radius: 8px;
 }
@@ -263,6 +272,9 @@ html,body,#app,.el-container,.full-screen{
 .el-input-number__decrease:hover:not(.is-disabled)~.el-input .el-input__inner:not(.is-disabled), .el-input-number__increase:hover:not(.is-disabled)~.el-input .el-input__inner:not(.is-disabled) {
     border-color: #4F2A93;
 }
+.edit-color {
+    color: #606266;
+}
 #counterSetBtn {
     text-align: center;
     margin-bottom: 20px;
@@ -277,17 +289,9 @@ html,body,#app,.el-container,.full-screen{
     border-right: none;
     border-top: none;
 }
-.party-quest-join-btn,.party-quest-join-btn:hover,.party-quest-join-btn:focus,.party-quest-join-btn *:hover  {
-    margin-top: 1.5em;
-    background-color: #4F2A93;
-    border-color: #432874;
-    color: #FFFFFF;
-}
-.party-quest-quit-btn,.party-quest-quit-btn:hover,.party-quest-quit-btn:focus,.party-quest-quit-btn *:hover {
-    margin-top: 1.5em;
-    background-color: #FFFFFF;
-    border-color: #432874;
-    color: #432874;
+#questTitle {
+    display: flex;
+    align-items: center;
 }
 .system-message {
     margin: 4px 0 0 0;
@@ -300,13 +304,13 @@ html,body,#app,.el-container,.full-screen{
     width: 1.8em;
     text-align: center;
 }
-.menu-reward-icon {
+#menuRewardIcon {
     width: 18px;
     padding-left: 3px;
     padding-right: 10px;
     float: left;
 }
-.menu-reward-gold {
+#menuRewardGold {
     font-size: larger;
     font-weight: bold;
     color: #8A4B00;
@@ -342,4 +346,7 @@ html,body,#app,.el-container,.full-screen{
     color: #8A4B00;
     text-align: left;
     padding-top: 1px;
+}
+#startBtn {
+    margin: 1em 0;
 }

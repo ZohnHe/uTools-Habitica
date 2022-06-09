@@ -11,7 +11,7 @@
     <div v-if="isLoading" class="full-screen" style="background-color: #FFFFFF" key="load-body"><loading /></div>
     <div v-else key="main-body" class="full-screen">
         <el-container>
-            <el-aside width="200px">
+            <el-aside id="aside">
                 <el-header id="habitica_title">
                     <el-row>
                         <el-col :span=7 id="user_avatar">
@@ -19,7 +19,7 @@
                                 <el-button type="text" icon="el-icon-refresh" @click="onSynchronousData">同步</el-button>
                                 <el-divider direction="vertical"></el-divider>
                                 <el-button type="text" icon="el-icon-switch-button" @click="onLogout">注销</el-button>
-                                <el-avatar shape="square" :src="userAvatarImg" slot="reference"></el-avatar>
+                                <el-avatar shape="square" :src="userAvatarImg" slot="reference" id="avatar"></el-avatar>
                             </el-popover>
                         </el-col>
                         <el-col :span=17 id="user-info">
@@ -31,7 +31,7 @@
                         </el-col>
                     </el-row>
                 </el-header>
-                <el-menu default-active="1">
+                <el-menu default-active="1" id="menu">
                     <el-menu-item index="1" @click="menuVal=1"><i class="el-icon-time"></i><span slot="title">习惯</span></el-menu-item>
                     <el-menu-item index="2" @click="menuVal=2"><i class="el-icon-sunrise-1"></i>
                         <span slot="title">每日任务 <el-badge v-show="undoDailyNum>0" class="mark badge-num" :value="undoDailyNum" /></span>
@@ -42,10 +42,10 @@
                     <el-menu-item index="4" @click="menuVal=4">
                         <div v-if="menuVal!=4"><i class="el-icon-ice-cream-square"></i><span slot="title">奖励</span></div>
                         <div v-else>
-                            <div class="menu-reward-icon">
+                            <div id="menuRewardIcon">
                                 <svg viewBox="0 0 24 24"><g fill="none" fill-rule="evenodd"><circle cx="12" cy="12" r="12" fill="#FFA623"/><path fill="#FFF" d="M6.3 17.7c-3.1-3.1-3.1-8.2 0-11.3 3.1-3.1 8.2-3.1 11.3 0" opacity=".5"/><path fill="#FFF" d="M17.7 6.3c3.1 3.1 3.1 8.2 0 11.3-3.1 3.1-8.2 3.1-11.3 0" opacity=".25"/><path fill="#BF7D1A" d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z" opacity=".5"/><path fill="#BF7D1A" d="M13 9v2h-2V9H9v6h2v-2h2v2h2V9z" opacity=".75"/></g></svg>
                             </div>
-                            <div class="menu-reward-gold">{{GP.toFixed(2)}}</div>
+                            <div id="menuRewardGold">{{GP.toFixed(2)}}</div>
                         </div>
                     </el-menu-item>
                     <el-menu-item index="5" @click="openPartyPage">
@@ -82,14 +82,14 @@
                                 <template v-for="item in showTaskList">
                                     <el-card shadow="hover" :body-style="{color:item.color}" @click.native="handleOpenDetails(item)" class="task-card">
                                         <el-row :gutter="18" class="item-center">
-                                            <el-col :span="2" class="task-icon clickable" :class="[item.up ? '' : 'task-icon-disable']">
+                                            <el-col :span="2" class="task-icon clickable" :class="[item.up ? '' : 'task-completed']">
                                                 <i class="el-icon-circle-plus-outline" @click.stop="scoreTask(item, 'up')"></i>
                                             </el-col>
                                             <el-col :span="20">
                                                 <div class="task-title" v-html="markedText(item.text)"></div>
                                                 <div class="task-notes" v-html="markedText(item.notes)"></div>
                                             </el-col>
-                                            <el-col :span="2" class="task-icon clickable" :class="[item.down ? '' : 'task-icon-disable']">
+                                            <el-col :span="2" class="task-icon clickable" :class="[item.down ? '' : 'task-completed']">
                                                 <i class="el-icon-remove-outline" @click.stop="scoreTask(item, 'down')"></i>
                                             </el-col>
                                         </el-row>
@@ -416,17 +416,22 @@
                                 <el-timeline>
                                     <el-timeline-item placement="top" v-if="partyQuest.key" timestamp="队伍副本">
                                         <el-card>
-                                            <el-row :gutter="18" style="margin-top: -1em">
-                                                <el-col :span="partyQuest.active && !partyQuest.isAccept ? 24 : 18">
-                                                    <h3>副本 “{{partyQuest.key}}” {{partyQuest.active ?  '进行中' : '开启邀请'}}</h3>
-                                                    <p v-if="partyQuest.active">{{partyQuest.haveHP?'BOSS剩余血量':'已收集'}} ：{{partyQuest.schedule}}</p>
-                                                    <p v-else>{{partyQuest.joinMembers}} / {{partyMembers}} 队员已加入</p>
+                                            <el-row id="questTitle">
+                                                <el-col :span="4">
+                                                    <div>
+                                                        <el-tag v-if="partyQuest.active" type="danger" size="small">进行中</el-tag>
+                                                        <el-tag v-else type="success" size="small">邀请中</el-tag>
+                                                    </div>
                                                 </el-col>
-                                                <el-col :span="partyQuest.active && !partyQuest.isAccept ? 0 : 6">
-                                                    <el-button size="medium" class="party-quest-join-btn" v-if="!partyQuest.active && !partyQuest.isAccept" @click="joinInQuest">加入</el-button>
-                                                    <el-button size="medium" class="party-quest-quit-btn" v-if="partyQuest.isAccept" @click="quitOutQuest">已加入</el-button>
-                                                </el-col>
+                                                <el-col :span="20"><h3>{{partyQuest.key}}</h3></el-col>
                                             </el-row>
+                                            <el-divider content-position="right">加入人数：{{partyQuest.joinMembers}} / {{partyMembers}}</el-divider>
+                                            <p v-if="partyQuest.active">{{partyQuest.haveHP?'BOSS剩余血量':'已收集的物品'}}： {{partyQuest.schedule}}</p>
+                                            <div>
+                                                <el-button size="mini" type="primary" class="full-width" v-if="!partyQuest.active && !partyQuest.isAccept" @click="joinInQuest">加入副本</el-button>
+                                                <el-button size="mini" class="full-width" v-if="partyQuest.isAccept" @click="quitOutQuest">已加入</el-button>
+                                                <el-button size="mini" type="danger" class="full-width" id="startBtn" v-if="partyQuest.canStartQuest" @click="startQuest">开始副本</el-button>
+                                            </div>
                                         </el-card>
                                     </el-timeline-item>
                                     <el-timeline-item :timestamp="item.user + ' （' + item.timestamp + '）'" placement="top" v-for="item in showTaskList">
@@ -444,7 +449,7 @@
                                             <p>与朋友们一起或是只有你自己来享受惊人的副本。与怪物战斗，创造挑战，并帮助您通过队伍负起自己的责任。</p>
                                         </el-col>
                                         <el-col :span="6">
-                                            <el-button size="medium" class="party-quest-join-btn" @click="joinInQuest">加入</el-button>
+                                            <el-button size="medium" type="primary" @click="joinInQuest">加入</el-button>
                                         </el-col>
                                     </el-row>
                                 </el-card>
@@ -475,7 +480,7 @@
                     <el-row>
                         <el-col :span=11><el-button class="full-width" @click="onRegistered">注 册</el-button></el-col>
                         <el-col :span=2>&nbsp;</el-col>
-                        <el-col :span=11><el-button class="full-width" type="primary" @click="loginDialog=false">登 录</el-button></el-col>
+                        <el-col :span=11><el-button type="primary" class="full-width" @click="loginDialog=false">登 录</el-button></el-col>
                     </el-row>
                 </el-form-item>
             </el-form>
@@ -511,7 +516,7 @@
             </el-card>
         </template>
         <span slot="footer" class="dialog-footer">
-            <el-button type="primary" @click="completedYesterday" class="habitica-btn">开始新的一天</el-button>
+            <el-button type="primary" @click="completedYesterday">开始新的一天</el-button>
         </span>
     </el-dialog>
 
@@ -525,10 +530,10 @@
             </el-form-item>
 
             <el-row :gutter="20" style="margin-bottom: 20px" v-if="menuVal===1">
-                <el-col :span="6" :offset="7" class="task-icon clickable" :class="[taskDetails.up ? '' : 'task-icon-disable']">
+                <el-col :span="6" :offset="7" class="task-icon clickable" :class="[taskDetails.up ? '' : 'task-completed']">
                     <i class="el-icon-circle-plus-outline" @click="taskDetails.up = !taskDetails.up"></i>
                 </el-col>
-                <el-col :span="6" class="task-icon clickable" :class="[taskDetails.down ? '' : 'task-icon-disable']">
+                <el-col :span="6" class="task-icon clickable" :class="[taskDetails.down ? '' : 'task-completed']">
                     <i class="el-icon-remove-outline" @click="taskDetails.down = !taskDetails.down"></i>
                 </el-col>
             </el-row>
@@ -560,7 +565,7 @@
                     <el-option label="每年" value="yearly" v-if="menuVal===2"></el-option>
                 </el-select>
             </el-form-item>
-            <el-form-item label="周期" v-if="menuVal===2" class="common-color">
+            <el-form-item label="周期" v-if="menuVal===2" class="edit-color">
                 每
                 <el-input-number v-model="taskDetails.everyX" size="small" controls-position="right" :min="0" style="width:40%"></el-input-number>
                 <el-select v-model="taskDetails.frequency" size="small" style="width:30%">
@@ -571,7 +576,7 @@
                 </el-select>
                 重复一次
             </el-form-item>
-            <el-form-item label="每周" v-if="menuVal===2&&taskDetails.frequency==='weekly'" class="common-color">
+            <el-form-item label="每周" v-if="menuVal===2&&taskDetails.frequency==='weekly'" class="edit-color">
                 <el-tag type="info" effect="plain" :class="{'tag-selected':taskDetails.repeat.su}" @click="taskDetails.repeat.su=!taskDetails.repeat.su">日</el-tag>
                 <el-tag type="info" effect="plain" :class="{'tag-selected':taskDetails.repeat.m}" @click="taskDetails.repeat.m=!taskDetails.repeat.m">一</el-tag>
                 <el-tag type="info" effect="plain" :class="{'tag-selected':taskDetails.repeat.t}" @click="taskDetails.repeat.t=!taskDetails.repeat.t">二</el-tag>
@@ -610,7 +615,7 @@
             </el-form-item>
 
             <el-form-item id="taskDetail_Submit">
-                <el-button size="small" type="text" @click="handleTaskDetailClose">取消</el-button>
+                <el-button size="small" @click="handleTaskDetailClose">取消</el-button>
                 <el-button size="small" type="danger" @click="onDeleteTask">删除</el-button>
                 <el-button size="small" type="primary" @click="onUpdateTask">保存</el-button>
             </el-form-item>
@@ -656,7 +661,8 @@
 </div>
 
 </body>
-<script src="./src/static/js/vue.min.js"></script>
+<!--<script src="./src/static/js/vue.min.js"></script>-->
+<script src="./../.dev/vue-dev.js"></script>
 <script src="./src/static/js/element-ui.js"></script>
 <script src="./src/static/js/sortable.min.js"></script>
 <script src="./src/static/js/vuedraggable.umd.min.js"></script>
