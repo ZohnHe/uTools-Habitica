@@ -426,7 +426,7 @@
                                                 <el-col :span="20"><h3>{{partyQuest.key}}</h3></el-col>
                                             </el-row>
                                             <el-divider content-position="right">加入人数：{{partyQuest.joinMembers}} / {{partyMembers}}</el-divider>
-                                            <p v-if="partyQuest.active">{{partyQuest.haveHP?'BOSS剩余血量':'已收集的物品'}}： {{partyQuest.schedule}}</p>
+                                            <p v-if="partyQuest.active">{{partyQuest.schedule}}</p>
                                             <div>
                                                 <el-button size="mini" type="primary" class="full-width" v-if="!partyQuest.active && !partyQuest.isAccept" @click="joinInQuest">加入副本</el-button>
                                                 <el-button size="mini" class="full-width" v-if="partyQuest.isAccept" @click="quitOutQuest">已加入</el-button>
@@ -443,15 +443,10 @@
                             </template>
                             <template v-else>
                                 <el-card>
-                                    <el-row :gutter="18" style="margin-top: -1em">
-                                        <el-col :span="18">
-                                            <h3>加入一个队伍来一起玩Habitica吧！</h3>
-                                            <p>与朋友们一起或是只有你自己来享受惊人的副本。与怪物战斗，创造挑战，并帮助您通过队伍负起自己的责任。</p>
-                                        </el-col>
-                                        <el-col :span="6">
-                                            <el-button size="medium" type="primary" @click="joinInQuest">加入</el-button>
-                                        </el-col>
-                                    </el-row>
+                                    <h3>加入一个队伍来一起玩Habitica吧！</h3>
+                                    <p>与朋友们一起或是只有你自己来享受惊人的副本。与怪物战斗，创造挑战，并帮助您通过队伍负起自己的责任。</p>
+                                    <el-divider></el-divider>
+                                    <el-button size="mini" type="primary" class="full-width" @click="joinInQuest">加入队伍</el-button>
                                 </el-card>
                             </template>
                         </div>

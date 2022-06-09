@@ -100,7 +100,6 @@ new Vue({
             joinMembers: 0,
             key: "",
             isAccept: false,
-            haveHP: true,
             schedule: 0,
             canStartQuest: true
         },
@@ -655,7 +654,7 @@ new Vue({
                             }
                         }
                     }
-                    this.setQuestProgress(data.quest.progress);
+                    this.setQuestSchedule(data.quest.progress);
                     let active = data.quest.active;
                     this.partyQuest.active = active;
                     this.partyQuest.joinMembers = joinCount;
@@ -693,6 +692,8 @@ new Vue({
                     this.partyQuest.joinMembers++;
                     if (this.partyQuest.joinMembers === this.partyMembers) {
                         this.partyQuest.active = true;
+                        this.partyQuest.canStartQuest = false;
+                        this.setQuestSchedule(data.progress);
                     }
                 } else {
                     this.showErrMsg(data);
@@ -788,19 +789,18 @@ new Vue({
             if (typeof text == 'undefined' || text == null) return '';
             return marked(text, {sanitize: true, smartLists: true});
         },
-        setQuestProgress(progress) {
-            let haveHp = !!progress.hp;
+        setQuestSchedule(progress) {
             let schedule = "";
-            if (haveHp) {
-                schedule = progress.hp.toFixed(2);
+            if (!!progress.hp) {
+                schedule = "BOSS剩余血量： " + progress.hp.toFixed(2);
             } else {
+                schedule = "已收集的物品： ";
                 for(let key in progress.collect) {
                     let name = findCollectNameByKey(key);
                     schedule += name + "(" + progress.collect[key] + ")、";
                 }
                 schedule = schedule.substr(0, schedule.length - 1);
             }
-            this.partyQuest.haveHP = haveHp;
             this.partyQuest.schedule = schedule;
         },
         startQuest() {
@@ -812,7 +812,7 @@ new Vue({
                 startPartyQuest(this.partyId,(success, data) => {
                     if (success) {
                         this.partyQuest.active = true;
-                        this.setQuestProgress(data.progress);
+                        this.setQuestSchedule(data.progress);
                         this.partyQuest.canStartQuest = false;
                     } else {
                         this.showErrMsg(data);
@@ -825,7 +825,7 @@ new Vue({
         window.addEventListener("click", e => {
             let el = e.target;
             if (el.tagName === 'A') {
-                utools.shellOpenExternal(el.href);
+                openBrowser(el.href);
             }
         });
         utools.onPluginEnter(() => this.onSynchronousData());
