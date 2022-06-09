@@ -426,7 +426,10 @@
                                                 <el-col :span="20"><h3>{{partyQuest.key}}</h3></el-col>
                                             </el-row>
                                             <el-divider content-position="right">加入人数：{{partyQuest.joinMembers}} / {{partyMembers}}</el-divider>
-                                            <p v-if="partyQuest.active">{{partyQuest.schedule}}</p>
+                                            <div v-if="partyQuest.active">
+                                                <p>{{partyQuest.schedule}}</p>
+                                                <p>{{partyQuest.gain}}</p>
+                                            </div>
                                             <div>
                                                 <el-button size="mini" type="primary" class="full-width" v-if="!partyQuest.active && !partyQuest.isAccept" @click="joinInQuest">加入副本</el-button>
                                                 <el-button size="mini" class="full-width" v-if="partyQuest.isAccept" @click="quitOutQuest">已加入</el-button>

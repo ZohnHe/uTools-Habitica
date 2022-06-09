@@ -94,13 +94,16 @@ new Vue({
             }]
         },
         partyId: "",
+        partyDamage: 0,
+        partyCollected: 0,
         partyMembers: 0,
         partyQuest: {
             active: false,
             joinMembers: 0,
             key: "",
             isAccept: false,
-            schedule: 0,
+            schedule: "",
+            gain: "",
             canStartQuest: true
         },
         partyChat: [],
@@ -189,7 +192,12 @@ new Vue({
             this.GP = userInfo.stats.gp;
             this.userClass = userInfo.stats.class;
             this.userAvatarImg = "./src/static/svg/" + userInfo.stats.class + ".svg";
-            this.partyId = userInfo.party._id;
+            let party = userInfo.party;
+            if (party) {
+                this.partyId = party._id;
+                this.partyDamage = party.quest.progress.up.toFixed(2);
+                this.partyCollected = party.quest.progress.collectedItems;
+            }
             this.isLoading = false;
             getHBHabit((success, data) => {
                 if (!success) {
@@ -224,14 +232,13 @@ new Vue({
                             frequency: task.frequency
                         });
                     } else if (task.type === "daily") {
-                        let due = task.isDue;
                         this.dailyList.push({
                             id: task.id,
                             text: task.text,
                             notes: task.notes,
                             color: getColorByValue(task.value),
                             completed: task.completed,
-                            isDue: due,
+                            isDue: task.isDue,
                             repeat: task.repeat,
                             everyX: task.everyX,
                             collapseChecklist: task.collapseChecklist,
@@ -244,7 +251,7 @@ new Vue({
                             daysOfMonth: task.daysOfMonth,
                             weeksOfMonth: task.weeksOfMonth
                         });
-                        if (due) {
+                        if (task.isDue && !task.completed) {
                             this.undoDailyNum++;
                         }
                     } else if (task.type === "todo") {
@@ -448,18 +455,21 @@ new Vue({
                             this.selectTag = 0;
                         }
                     } else if (menuVal !== 4) {
-                        if (selectTag === 9) {
-                            let now = new Date();
-                            task.dateMsg = getDateReminder(now, task.date);
-                            this.todoList.push(task);
-                            this.undoTodoNum++;
-                        }
                         let after = !task.completed;
-                        if (menuVal === 2) {
+                        if (menuVal === 2 && task.isDue) {
                             if (after) {
                                 this.undoDailyNum--;
                             } else {
                                 this.undoDailyNum++;
+                            }
+                        } else if (menuVal === 3) {
+                            if (selectTag === 9) {
+                                let now = new Date();
+                                task.dateMsg = getDateReminder(now, task.date);
+                                this.todoList.push(task);
+                                this.undoTodoNum++;
+                            } else {
+                                this.undoTodoNum--;
                             }
                         }
                         task.completed = after;
@@ -467,6 +477,15 @@ new Vue({
                         this.selectTag = 0;
                     }
                     this.modifyStatus(data.hp, data.lvl, data.exp, data.mp, data.gp);
+                    let quest = data._tmp.quest;
+                    if (quest) {
+                        if (quest.progressDelta) {
+                            this.partyDamage = (Number(this.partyDamage) + Number(quest.progressDelta)).toFixed(2);
+                        }
+                        if (quest.collection) {
+                            this.partyCollected = Number(this.partyCollected) + Number(quest.collection);
+                        }
+                    }
                 } else {
                     this.showErrMsg(data);
                 }
@@ -793,6 +812,7 @@ new Vue({
             let schedule = "";
             if (!!progress.hp) {
                 schedule = "BOSS剩余血量： " + progress.hp.toFixed(2);
+                this.partyQuest.gain = "预计造成伤害： " + this.partyDamage;
             } else {
                 schedule = "已收集的物品： ";
                 for(let key in progress.collect) {
@@ -800,6 +820,7 @@ new Vue({
                     schedule += name + "(" + progress.collect[key] + ")、";
                 }
                 schedule = schedule.substr(0, schedule.length - 1);
+                this.partyQuest.gain = "预计收集到的数量： " + this.partyCollected;
             }
             this.partyQuest.schedule = schedule;
         },
