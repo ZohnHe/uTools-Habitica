@@ -175,6 +175,9 @@ html,body,#app,.el-container,.full-screen{
     font: 13px Extra Small;
     letter-spacing: 0.5px;
 }
+.task-title {
+    padding-bottom: 0.5em;
+}
 .task-title p,.task-notes * {
     margin: 0;
 }
