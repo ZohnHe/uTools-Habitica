@@ -24,7 +24,7 @@
                         </el-col>
                         <el-col :span=17 id="user-info">
                             <el-link @click="openHabitica" target="_blank" id="user-name">{{name | ellipsisName}}</el-link>
-                            <el-tooltip class="item" effect="light" placement="bottom-start">
+                            <el-tooltip class="item" effect="light" placement="bottom-start" :open-delay="1000">
                                 <div slot="content">{{username}}</div>
                                 <p id="user-username">{{username | ellipsisUserName}} · 等级 {{level}}</p>
                             </el-tooltip>

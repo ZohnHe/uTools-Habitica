@@ -843,12 +843,13 @@ new Vue({
         }
     },
     mounted() {
-        window.addEventListener("click", e => {
+        document.addEventListener("click", e => {
             let el = e.target;
             if (el.tagName === 'A') {
                 openBrowser(el.href);
+                e.stopPropagation();
             }
-        });
+        }, true);
         utools.onPluginEnter(() => this.onSynchronousData());
     },
     filters: {
