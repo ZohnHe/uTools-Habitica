@@ -1,14 +1,14 @@
 {
 	"pluginName": "habitTools",
-	"description": "习惯养成及生产力应用 —— Habitica（的第三方插件）",
+	"description": "Third-party plugins for Habitica",
 	"main": "index.html",
-    "version": "1.6.0",
+    "version": "1.6.1",
     "author": "Zohn",
     "logo": "src/static/img/habitica.png",
 	"features": [
 		{
 		    "code": "habitTools",
-		    "explain": "培养你的习惯，做更好的自己",
+		    "explain": "Habit is a human thought and behavior of the leader.",
             "cmds":["HB", "habit", "habitica"]
 		}
 	]

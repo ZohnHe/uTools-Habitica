@@ -42,7 +42,7 @@ new Vue({
         menuVal: 1,
         selectTag: 0,
         conservedTag: [0,4,7,10,13],
-        dynamicTags: [{index: 1, name: "全 部"}, {index: 2, name: "偶 尔"}, {index: 3, name: "经 常"}],
+        dynamicTags: [{index: 1, name: "All"}, {index: 2, name: "Weak"}, {index: 3, name: "Strong"}],
         habitList: [],
         dailyList: [],
         todoList: [],
@@ -73,19 +73,19 @@ new Vue({
         },
         pickerOptions: {
             shortcuts: [{
-                text: '昨天',
+                text: 'yesterday',
                 onClick(picker) {
                     const date = new Date();
                     date.setTime(date.getTime() - 3600 * 1000 * 24);
                     picker.$emit('pick', date);
                 }
             }, {
-                text: '今天',
+                text: 'today',
                 onClick(picker) {
                     picker.$emit('pick', new Date());
                 }
             }, {
-                text: '明天',
+                text: 'tomorrow',
                 onClick(picker) {
                     const date = new Date();
                     date.setTime(date.getTime() + 3600 * 1000 * 24);
@@ -125,7 +125,7 @@ new Vue({
             let key = this.userForm.key;
             if (user.trim().length <= 0 || key.trim().length <= 0) {
                 this.loginDialog = true;
-                this.showErrMsg("请输入你的凭证");
+                this.showErrMsg("Please enter your credentials");
                 return;
             }
             headers["x-api-user"] = user;
@@ -164,7 +164,7 @@ new Vue({
                 return;
             }
             this.requestLock = true;
-            let load = this.$message({message: '同步中...', center: true, duration: 0});
+            let load = this.$message({message: 'synchronizing...', center: true, duration: 0});
             getHBUserInfo((success, data) => {
                 this.requestLock = false;
                 if (success) {
@@ -384,7 +384,7 @@ new Vue({
                 if (load) {
                     load.close();
                 }
-                this.$message({message: '同步完成', center: true, type: 'success', duration: 1000});
+                this.$message({message: 'Sync complete', center: true, type: 'success', duration: 1000});
             });
         },
         onLogout() {
@@ -406,32 +406,32 @@ new Vue({
         },
         async modifyStatus(hp, lvl, exp, mp, gp) {
             if (hp < this.HP) {
-                await this.notifyMsg('生命 -' + (this.HP - hp).toFixed(2), 'warning');
+                await this.notifyMsg('Health -' + (this.HP - hp).toFixed(2), 'warning');
             }
             if (hp <= 0) {
                 this.openHabitica();
             }
             this.HP = hp;
             if (lvl > this.level) {
-                await this.notifyMsg('经验 +' + (this.maxEXP - this.EXP + exp).toFixed(2), 'success');
-                await this.notifyMsg('恭喜升级了！', 'success');
+                await this.notifyMsg('Exp +' + (this.maxEXP - this.EXP + exp).toFixed(2), 'success');
+                await this.notifyMsg('upgrade!', 'success');
             } else if (exp < this.EXP) {
-                await this.notifyMsg('经验 -' + (this.EXP - exp).toFixed(2), 'warning');
+                await this.notifyMsg('Exp -' + (this.EXP - exp).toFixed(2), 'warning');
             } else if (exp > this.EXP){
-                await this.notifyMsg('经验 +' + (exp - this.EXP).toFixed(2), 'success');
+                await this.notifyMsg('Exp +' + (exp - this.EXP).toFixed(2), 'success');
             }
             this.level = lvl;
             this.EXP = exp;
             if (mp < this.MP) {
-                await this.notifyMsg('魔法 -' + (this.MP - mp).toFixed(2), 'warning');
+                await this.notifyMsg('Mana -' + (this.MP - mp).toFixed(2), 'warning');
             } else if (mp > this.MP){
-                await this.notifyMsg('魔法 +' + (mp - this.MP).toFixed(2), 'success');
+                await this.notifyMsg('Mana +' + (mp - this.MP).toFixed(2), 'success');
             }
             this.MP = mp;
             if (gp < this.GP) {
-                await this.notifyMsg('金币 -' + (this.GP - gp).toFixed(2), 'warning');
+                await this.notifyMsg('Gold -' + (this.GP - gp).toFixed(2), 'warning');
             } else if (gp > this.GP){
-                await this.notifyMsg('金币 +' + (gp - this.GP).toFixed(2), 'success');
+                await this.notifyMsg('Gold +' + (gp - this.GP).toFixed(2), 'success');
             }
             this.GP = gp;
         },
@@ -627,9 +627,9 @@ new Vue({
             });
         },
         onDeleteTask(id) {
-            this.$confirm('确定要删除该任务？', '提示', {
-                confirmButtonText: '很确定',
-                cancelButtonText: '手抖了',
+            this.$confirm('Are you sure you want to delete this task?', 'warning', {
+                confirmButtonText: 'Very sure',
+                cancelButtonText: 'No',
                 type: 'warning'
             }).then(() => {
                 deleteHBTask(this.taskDetails.id, (success, data) => {
@@ -688,11 +688,11 @@ new Vue({
                         this.partyChat.push({
                             id: chat._id,
                             text: chat.text,
-                            user: user ? user : '系统',
-                            timestamp: new Date(chat.timestamp).toLocaleString('zh', {hour12: false}),
+                            user: user ? user : 'System',
+                            timestamp: new Date(chat.timestamp).toLocaleString('en', {hour12: false}),
                         });
                     }
-                    this.$message({message: '同步完成', center: true, type: 'success', duration: 1000});
+                    this.$message({message: 'Sync complete', center: true, type: 'success', duration: 1000});
                 } else {
                     this.showErrMsg(data);
                 }
@@ -720,9 +720,9 @@ new Vue({
             });
         },
         quitOutQuest() {
-            this.$confirm('确定要退出副本吗？退出后将不能再次加入。', '提示', {
-                confirmButtonText: '很确定',
-                cancelButtonText: '手抖了',
+            this.$confirm('Are you sure you want to leave the Quest? All your progress will be lost.', 'warning', {
+                confirmButtonText: 'Very sure',
+                cancelButtonText: 'No',
                 type: 'warning'
             }).then(() => {
                 responsePartyQuest(this.partyId,"leave", (success, data) => {
@@ -765,7 +765,7 @@ new Vue({
         castSkill(key, name, target) {
             castHabiticaSkill(key, target, async (success, data) => {
                 if (success) {
-                    await this.notifyMsg('使出了' + name, 'success');
+                    await this.notifyMsg('You use' + name, 'success');
                     this.modifyStatus(data.hp, data.lvl, data.exp, data.mp, data.gp);
                 } else {
                     this.showErrMsg(data);
@@ -786,7 +786,7 @@ new Vue({
         buyHealth() {
             buyHealthPotion(async (success, data) => {
                 if (success) {
-                    await this.notifyMsg('购买了治疗药水', 'success');
+                    await this.notifyMsg('You gained some Health', 'success');
                     this.modifyStatus(data.hp, data.lvl, data.exp, data.mp, data.gp);
                 } else {
                     this.showErrMsg(data);
@@ -797,7 +797,7 @@ new Vue({
             let target = !this.sleep;
             sleep(target,async (success, data) => {
                 if (success) {
-                    await this.notifyMsg(target ? "已暂停任务伤害" : "已开启任务伤害", 'success');
+                    await this.notifyMsg(target ? "Paused Damage" : "Unpaused Damage", 'success');
                     this.sleep = target;
                 } else {
                     this.showErrMsg(data);
@@ -811,23 +811,23 @@ new Vue({
         setQuestSchedule(progress) {
             let schedule = "";
             if (!!progress.hp) {
-                schedule = "BOSS剩余血量： " + progress.hp.toFixed(2);
-                this.partyQuest.gain = "预计造成伤害： " + this.partyDamage;
+                schedule = "BOSS HP: " + progress.hp.toFixed(2);
+                this.partyQuest.gain = this.partyDamage + " pending damage";
             } else {
-                schedule = "已收集的物品： ";
+                schedule = "Items that have been collected: ";
                 for(let key in progress.collect) {
                     let name = findCollectNameByKey(key);
-                    schedule += name + "(" + progress.collect[key] + ")、";
+                    schedule += name + "(" + progress.collect[key] + "), ";
                 }
                 schedule = schedule.substr(0, schedule.length - 1);
-                this.partyQuest.gain = "预计收集到的数量： " + this.partyCollected;
+                this.partyQuest.gain = "Quantity expected to be collected: " + this.partyCollected;
             }
             this.partyQuest.schedule = schedule;
         },
         startQuest() {
-            this.$confirm('确定要开启这个副本吗？不是所有队员都接受了该副本邀请。当所有成员都参加了副本，副本将会自动开启。', '提示', {
-                confirmButtonText: '很确定',
-                cancelButtonText: '手抖了',
+            this.$confirm('Are you sure you want to start this Quest? Not all Party members have accepted the Quest invite. Quests start automatically after all members respond to the invite.', 'warning', {
+                confirmButtonText: 'Very sure',
+                cancelButtonText: 'No',
                 type: 'warning'
             }).then(() => {
                 startPartyQuest(this.partyId,(success, data) => {
@@ -870,15 +870,15 @@ new Vue({
     watch: {
         menuVal: function (newVal, oldVal) {
             if (newVal === 1) {
-                this.dynamicTags = [{index: 1, name: "全 部"}, {index: 2, name: "偶 尔"}, {index: 3, name: "经 常"}];
+                this.dynamicTags = [{index: 1, name: "All"}, {index: 2, name: "Weak"}, {index: 3, name: "Strong"}];
             } else if (newVal === 2) {
-                this.dynamicTags = [{index: 4, name: "全 部"}, {index: 5, name: "待 办"}, {index: 6, name: "已 办"}];
+                this.dynamicTags = [{index: 4, name: "All"}, {index: 5, name: "Due"}, {index: 6, name: "Not Due"}];
             } else if (newVal === 3) {
-                this.dynamicTags = [{index: 7, name: "进 行"}, {index: 8, name: "限 时"}, {index: 9, name: "已 办"}];
+                this.dynamicTags = [{index: 7, name: "Active"}, {index: 8, name: "Scheduled"}, {index: 9, name: "Complete"}];
             } else if (newVal === 4) {
-                this.dynamicTags = [{index: 10, name: "全 部"}, {index: 11, name: "定 制"}, {index: 12, name: "其 他"}];
+                this.dynamicTags = [{index: 10, name: "All"}, {index: 11, name: "Custom"}, {index: 12, name: "Others"}];
             } else if (newVal === 5) {
-                this.dynamicTags = [{index: 13, name: "全 部"}, {index: 14, name: "成 员"}, {index: 15, name: "系 统"}];
+                this.dynamicTags = [{index: 13, name: "All"}, {index: 14, name: "Member"}, {index: 15, name: "System"}];
             }
             this.setDefaultTag();
         },
@@ -929,7 +929,7 @@ new Vue({
                     }
                     for (let i = 0; i < data.length; ++i) {
                         let task = data[i];
-                        let cDate = new Date(task.dateCompleted).toLocaleString('zh', {hour12: false});
+                        let cDate = new Date(task.dateCompleted).toLocaleString('en', {hour12: false});
                         this.showTaskList.push({
                             id: task.id,
                             text: task.text,
@@ -939,7 +939,7 @@ new Vue({
                             collapseChecklist: task.collapseChecklist,
                             checklist: task.checklist,
                             date: task.date,
-                            dateMsg: "完成时间：" + cDate
+                            dateMsg: "Complete time:" + cDate
                         });
                     }
                     this.conservedTag[2] = newVal;
@@ -956,7 +956,7 @@ new Vue({
                 this.conservedTag[4] = newVal;
             } else if (newVal === 14 || newVal === 15) {
                 for (let i = 0; i < this.partyChat.length; ++i) {
-                    if (newVal === 15 && this.partyChat[i].user === '系统' || newVal === 14 && this.partyChat[i].user !== '系统') {
+                    if (newVal === 15 && this.partyChat[i].user === 'System' || newVal === 14 && this.partyChat[i].user !== 'System') {
                         this.showTaskList.push(this.partyChat[i]);
                     }
                 }

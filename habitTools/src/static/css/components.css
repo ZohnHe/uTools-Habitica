@@ -43,7 +43,7 @@ html,body,#app,.el-container,.full-screen{
     color: #612CA7;
     width: 60px;
 }
-/*加载图标*/
+/*loading icon*/
 #start_image {
     width: 100px;
     height: 100px;
@@ -57,7 +57,7 @@ html,body,#app,.el-container,.full-screen{
 .fade-enter, .fade-leave-to {
     opacity: 0;
 }
-/*登录界面*/
+/*login*/
 #loginDrawer {
     background: #271B3D url("./../img/stars.png") top repeat-x;
 }
@@ -68,12 +68,12 @@ html,body,#app,.el-container,.full-screen{
     position: relative;
     top: 33%;
 }
-/*任务界面*/
+/*task*/
 .el-header {
     background-color: #432874;
     color: #333;
 }
-/*左侧*/
+/*left*/
 #aside {
     width: 200px !important;
     background-color: #EEF1F6;
@@ -147,7 +147,7 @@ html,body,#app,.el-container,.full-screen{
     border-color: #432874 !important;
     color: #4F2A93 !important;
 }
-/*右侧*/
+/*right*/
 #content {
     border: 1px solid #432874;
     border-radius: 5px;
@@ -253,7 +253,7 @@ html,body,#app,.el-container,.full-screen{
 .el-dialog {
     border-radius: 8px;
 }
-/*编辑*/
+/*edit*/
 #taskDetail .el-drawer__body {
     padding-right: 20px;
     overflow: auto;

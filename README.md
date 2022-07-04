@@ -1,65 +1,70 @@
-# uTools-Habitica （HabitTools）
-对前端完全懵逼的苦逼后端小开发慢慢琢磨的一个针对 uTools 的 Habitica 第三方插件。
+<a name="bcQVz"></a>
+## ⭐ Summary
+A lightweight and concise third-party tool of habitica, which only provides functions for daily use, so that you can focus on your tasks.<br />HabitTools is based on **utools**, It is a tool set software with rich plug-ins, and HabitTools is one of them.
+> See more about uTools：[🔗 uTools official website](https://open.u-tools.cn/45142.html)
 
-**uTools** 是新一代效率工具平台，拥有丰富插件，本插件也是其中一个。可自由组合搭配，提高办公生产力。
-> 了解详情点击：
-> - [🔗 uTools官网](https://open.u-tools.cn/45142.html)
+Because of this, you can access habitica at any time and operate tasks to improve work efficiency.
 
-而 **Habitica** 是一个习惯养成及提高生产力的应用，游戏化你的人生。
-> 了解详情点击：
-> - [🔗 官方介绍](https://habitica.com/static/features)
-> - [🔗 把枯燥任务变成有趣的游戏，你只需要这个APP](https://zhuanlan.zhihu.com/p/58660347)
-> - [🔗 拖延症如何用好Habitica](https://www.zhihu.com/question/36371438)
+![GIF 2022-7-1 10-36-07.gif](https://cdn.nlark.com/yuque/0/2022/gif/12689236/1656643160697-3f6f58b4-bad6-4254-a2b9-fd848d0242b0.gif#clientId=u5581db7e-4804-4&crop=0&crop=0&crop=1&crop=1&from=ui&id=uc4edae27&margin=%5Bobject%20Object%5D&name=GIF%202022-7-1%2010-36-07.gif&originHeight=696&originWidth=1027&originalType=binary&ratio=1&rotation=0&showTitle=true&size=3513314&status=done&style=shadow&taskId=u1701f869-54d6-4d89-86bf-1a6680847a0&title=Preview "Preview")
 
-目前处于 **持续精进** 阶段，技术不佳，估计还有些问题，跪求指导 ...(ノ ＿ ＿)ノ
-> - 联系邮箱：📫 zohnhe@aliyun.com
-> - 论坛帖子：[🔗 一个关于 Habitica 的第三方插件~~](https://yuanliao.info/d/3764-habittools-habitica)
+Up to now (June 30, 2022), habitTools has accumulated **12693** users, with a score of **4.9**, and received many good reviews.<br />![20220701105020.png](https://cdn.nlark.com/yuque/0/2022/png/12689236/1656643838817-878baf0e-4274-40b0-80f2-c9bc2fa4fea6.png#clientId=u5581db7e-4804-4&crop=0&crop=0&crop=1&crop=1&from=ui&id=u99272f49&margin=%5Bobject%20Object%5D&name=20220701105020.png&originHeight=35&originWidth=318&originalType=binary&ratio=1&rotation=0&showTitle=false&size=2999&status=done&style=shadow&taskId=ue1853b55-0a0d-49a5-9a90-c334230735f&title=)<br />![20220701105236.png](https://cdn.nlark.com/yuque/0/2022/png/12689236/1656644045900-bb5c1e00-0e57-46ab-a955-abc0aa6a4246.png#clientId=u5581db7e-4804-4&crop=0&crop=0&crop=1&crop=1&from=ui&id=u250c3ffd&margin=%5Bobject%20Object%5D&name=20220701105236.png&originHeight=478&originWidth=395&originalType=binary&ratio=1&rotation=0&showTitle=false&size=42449&status=done&style=shadow&taskId=u60e2f8f8-7124-4579-b087-6abd7b1f64f&title=)
 
-## ⭐ 已有功能 & 需求池
-- [x] 任务列表划分不同分类
-- [x] 点击任务展示任务细节，并提供删除任务功能
-- [x] 增加队伍聊天、副本功能
-- [x] 增加奖励功能、查看金币余额
-- [x] 提供买血包补血功能，看看能不能避开死亡
-- [x] 增加技能页面，随时释放技能
-- [x] 添加出入酒馆休息功能
-- [x] 添加任务拖拽排序功能
-- [ ] 增加和兼容暗黑模式
-- [x] 兼容markdown语法
-- [x] 加强副本相关信息显示
-- [ ] 增加任务提醒功能，到时间则弹出提醒
+But the disadvantages are also obvious:
 
-（辣么多功能了，你忍心不点个 star 鼓励支持下小菜鸡么 (´Д｀ ) ）
+- It needs to rely on utools, It may be made into software independently in the future
+- It is not international, only Chinese language and Chinese users.
+- I am a novice and have no experience in project development. There may be program loopholes.
 
-## ⭐ 食用方法
-1. 下载插件工具箱 【[🔗 uTools](https://open.u-tools.cn/45142.html)】
-2. uTools里的应用商店内搜索 **`HabitTools`** 👉 安装本插件 👉 `alt + 空格` 呼出输入框 👉 输入 **`habit`** 等关键字打开插件。
-3. 登录Habitica官网页面，在右上角 **`玩家`** 图标里找到 **`设定`** 👉 下方选择 **`API/应用程序接口`** 👉 找到对应的 **`用户ID`** 和 **`API令牌`**。
-4. 在插件输入这两个码并登录 👉 开始游戏。
+Therefore, you are very welcome to give me suggestions and feedback:
 
-## ⭐ Q&A
-> Q：为什么点多了会说请求频繁？
-- A：官方接口中限制了一分钟只能请求30次，只要不是非常兴奋激动，一般的操作是不会超过限制的。
+- Project Address: [🔗 enter GitHub to submit your questions](https://github.com/ZohnHe/uTools-Habitica)
+- Email Address: 📫 [zohnhe@aliyun.com](mailto:zohnhe@aliyun.com)
 
-> Q：为什么有些任务和官方页面上显示的不一样？
-- A：
-    1. 如果是多端操作的话，在其他地方修改或增加了任务后需要手动左上角点下【同步】进行同步进度
-    2. 如果没有在其他地方修改过，则有可能是插件未能涵盖这种情况，官方规则有很多，如果发现这种情况欢迎在上面联系方式中提交bug完善规则
+<a name="BzSXK"></a>
+## ⭐ Functions & Requirements
 
-> Q：为什么有时候反应比较慢，同步失败？
-- A：插件调用的还是Habitica的接口，而Habitica服务器设在谷歌云上，反应慢或者没反应与你所在的运营商和谷歌云的网络通信质量有关，这时候可以访问下官网检查下访问速度，必要情况下使用科学上网技术。
+- [x] Basic "habit", "daily", "reward" task list
+- [x] Different classifications of task list
+- [x] Click the task to show the details of the task and delete the task
+- [x] Add "party chat" page and "party quest" function
+- [x] Add "reward" function
+- [x] Add "buy health" and "sleep" function
+- [x] Add "skill" function
+- [x] Add task drag sort function
+- [ ] Add and compatible with "dark mode"
+- [x] Support markdown
+- [x] Add "party quest" information
+- [ ] Add task reminder function, and a reminder will pop up when the time comes
+- [ ] After entering the task name in the input box of the uTools, create the task
 
-> Q：为什么……
-- A：BUG，都是BUG，欢迎提交你的疑问到上面的联系方式中
+<a name="QQ5Qy"></a>
+## ⭐ Instruction manual
 
-## ⭐ 细节展示
-[![X6RdW4.png](https://s1.ax1x.com/2022/06/10/X6RdW4.png)](https://imgtu.com/i/X6RdW4)
-[![X6RtoT.png](https://s1.ax1x.com/2022/06/10/X6RtoT.png)](https://imgtu.com/i/X6RtoT)
-[![X6RaYF.png](https://s1.ax1x.com/2022/06/10/X6RaYF.png)](https://imgtu.com/i/X6RaYF)
-[![X6RUFU.png](https://s1.ax1x.com/2022/06/10/X6RUFU.png)](https://imgtu.com/i/X6RUFU)
-[![RVOAEQ.png](https://z3.ax1x.com/2021/06/22/RVOAEQ.png)](https://imgtu.com/i/RVOAEQ)
+1. Download Plug-in toolbox: [🔗 uTools](https://open.u-tools.cn/45142.html)
+![image.png](https://cdn.nlark.com/yuque/0/2022/png/12689236/1656645354829-c8cc5a0d-6004-4e99-afb7-295c1740ec14.png#clientId=u5581db7e-4804-4&crop=0&crop=0&crop=1&crop=1&from=paste&height=402&id=uf37f05d4&margin=%5Bobject%20Object%5D&name=image.png&originHeight=803&originWidth=1105&originalType=binary&ratio=1&rotation=0&showTitle=false&size=147458&status=done&style=shadow&taskId=ue4f3c48c-b66c-4c4d-9f4c-b7e4bb453f6&title=&width=553)
 
-## ⭐ 友情链接
-- [habitica官网](https://habitica.com/)
-- [uTools官网](https://open.u-tools.cn/45142.html)
+2. There are two ways to install plug-in. You can choose by yourself
+   1. Open the app store in utools and search `**HabitTools**`, click in and install it. (Online version, Chinese only)
+![image.png](https://cdn.nlark.com/yuque/0/2022/png/12689236/1656645469427-a7715e54-30d2-4984-89a3-0dc4209776cb.png#clientId=u5581db7e-4804-4&crop=0&crop=0&crop=1&crop=1&from=paste&height=344&id=u057c20eb&margin=%5Bobject%20Object%5D&name=image.png&originHeight=458&originWidth=801&originalType=binary&ratio=1&rotation=0&showTitle=false&size=32626&status=done&style=shadow&taskId=udeb44fc3-ea65-46ac-b8b1-6d18ef3d2ba&title=&width=601)
+   2. Download the upx installation package on the [github releases](https://github.com/ZohnHe/uTools-Habitica/releases) page, and then drag it into the utools input box to install it. (Free choice version)
+![image.png](https://cdn.nlark.com/yuque/0/2022/png/12689236/1656933902268-de638ec4-ca8f-4b48-b069-6b11570225c2.png#clientId=uc6b24a51-217b-4&crop=0&crop=0&crop=1&crop=1&from=ui&height=289&id=uc6431e93&name=QQ%E5%9B%BE%E7%89%8720220704192442.png&originHeight=385&originWidth=942&originalType=binary&ratio=1&rotation=0&showTitle=true&size=29276&status=done&style=shadow&taskId=u92083aa5-f6b8-44b8-98d4-19330cc704f&title=download&width=707 "download")
+![image.png](https://cdn.nlark.com/yuque/0/2022/png/12689236/1656934598294-45abf14d-a3c9-4675-b7e8-2c7dc8ddd958.png#clientId=uc6b24a51-217b-4&crop=0&crop=0&crop=1&crop=1&from=ui&id=u4f40ebd3&name=2.png&originHeight=430&originWidth=889&originalType=binary&ratio=1&rotation=0&showTitle=true&size=44891&status=done&style=shadow&taskId=uf4ca0ede-cc07-48e6-b778-19ceb8ee5c2&title=install "install")
+![3.png](https://cdn.nlark.com/yuque/0/2022/png/12689236/1656935304465-5b179433-c14e-4c88-adff-5eecc3e7c5c1.png#clientId=uc6b24a51-217b-4&crop=0&crop=0&crop=1&crop=1&from=ui&id=u3a6fbd6c&name=3.png&originHeight=186&originWidth=633&originalType=binary&ratio=1&rotation=0&showTitle=true&size=14865&status=done&style=shadow&taskId=u64cbbf47-fc87-48e5-bac5-e82c32ec88a&title=install "install")
+![4.png](https://cdn.nlark.com/yuque/0/2022/png/12689236/1656935328326-22d5640a-5682-4b4d-9c77-3568583cbab6.png#clientId=uc6b24a51-217b-4&crop=0&crop=0&crop=1&crop=1&from=ui&id=u79df7b91&name=4.png&originHeight=243&originWidth=647&originalType=binary&ratio=1&rotation=0&showTitle=true&size=17877&status=done&style=shadow&taskId=uf1224a2b-c2f8-43e4-a3b5-60b5af71f8a&title=install "install")
 
+3. Log in to Habitica.
+   1. Find`**User**`in the upper right corner
+   2. Find`**Settings**`
+   3. Select`**API**`
+   4. Find and copy`**User ID**`and`**API Token**`
+   
+4. `**alt + space**` open uTools, then enter plug-in keywords such as `**habit**` to open the plug-in.
+
+5. Enter these two codes(ID, Token) in the HabitTools and log in.
+
+6. Start your game !
+
+<a name="2c44b2d7"></a>
+## ⭐ Show details
+
+![](https://s1.ax1x.com/2022/06/10/X6RdW4.png#crop=0&crop=0&crop=1&crop=1&id=Q9pX9&originHeight=624&originWidth=820&originalType=binary&ratio=1&rotation=0&showTitle=false&status=done&style=none&title=)<br />![](https://s1.ax1x.com/2022/06/10/X6RtoT.png#crop=0&crop=0&crop=1&crop=1&id=NzxZx&originHeight=630&originWidth=823&originalType=binary&ratio=1&rotation=0&showTitle=false&status=done&style=none&title=)<br />![](https://s1.ax1x.com/2022/06/10/X6RaYF.png#crop=0&crop=0&crop=1&crop=1&id=R96nf&originHeight=627&originWidth=824&originalType=binary&ratio=1&rotation=0&showTitle=false&status=done&style=none&title=)<br />![](https://s1.ax1x.com/2022/06/10/X6RUFU.png#crop=0&crop=0&crop=1&crop=1&id=xcFdy&originHeight=622&originWidth=816&originalType=binary&ratio=1&rotation=0&showTitle=false&status=done&style=none&title=)<br />![](https://z3.ax1x.com/2021/06/22/RVOAEQ.png#crop=0&crop=0&crop=1&crop=1&id=GPU3t&originHeight=784&originWidth=864&originalType=binary&ratio=1&rotation=0&showTitle=false&status=done&style=none&title=)

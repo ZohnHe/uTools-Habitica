@@ -11,21 +11,21 @@ const BUY_HEALTH_URL = USER_INFO_URL + "/buy-health-potion";
 const SLEEP_URL = USER_INFO_URL + "/sleep";
 
 const headers = {'x-client': "ab029ac0-b53c-451b-829b-1138d283a40c-habitTools", 'x-api-user': '', 'x-api-key': ''};
-const QUEST_MAP = {"evilsanta":"圣诞偷猎者","evilsanta2":"找熊崽","gryphon":"火红的狮鹫","hedgehog":"巨型刺猬","ghost_stag":"春之幽灵","rat":"鼠王","octopus":"章鱼克苏鲁的呼唤","harpy":"救命！哈耳庇厄！","rooster":"狂暴公鸡","spider":"寒霜蜘蛛","vice1":"恶习之龙，第1部：逃出恶习之龙的控制","vice2":"恶习之龙，第2部：寻找巨龙的巢穴","vice3":"恶习之龙，第3部：恶习缓醒","moonstone1":"故态复萌，第1部：月长石链","moonstone2":"故态复萌，第2部：亡灵法师Recidivate","moonstone3":"故态复萌，第3部：Recidivate变形","goldenknight1":"黄金骑士，第1部：一场严肃的谈话","goldenknight2":"黄金骑士，第2部：黄金骑士","goldenknight3":"黄金骑士，第3部：钢铁骑士","basilist":"普通的清单魔蛇","egg":"找彩蛋","dilatory":"恐怖的拖延巨龙","dilatory_derby":"拖拉比赛","atom1":"平凡世界的攻势，第1部：碗碟的灾难！","atom2":"平凡世界的攻势，第2部：好吃懒做怪","atom3":"平凡世界的攻势，第3部：洗衣终结者","owl":"暗夜猫头鹰","penguin":"冰霜禽类","stressbeast":"Stoïkalm草原的可恶压力兽","trex":"恐龙王","trex_undead":"出土恐龙化石","rock":"逃离山洞生物","bunny":"杀人兔","slime":"果冻摄政王","sheep":"雷霆公羊","kraken":"未完成海妖","whale":"鲸之哀嚎","dilatoryDistress1":"拖拉灾难，第1部：漂流瓶中的信","dilatoryDistress2":"拖拉灾难，第2部：裂缝中的生物","dilatoryDistress3":"拖拉灾难，第3部：不只是人鱼姑娘","cheetah":"真是一个猎豹","horse":"驾驭噩梦","burnout":"湮灭怪和被耗尽的灵魂","frog":"蛙泽","snake":"分心蛇","unicorn":"说服独角兽女王","sabretooth":"剑齿猫","monkey":"巨大的山魈和淘气的猴子","snail":"苦差事淤泥蜗牛","bewilder":"迷失怪","falcon":"掠食明天之鸟","treeling":"纠结树","axolotl":"魔法蝾螈","turtle":"引导海龟","armadillo":"放纵的犰狳","cow":"变异奶牛","beetle":"严重的BUG","taskwoodsTerror1":"恐怖的任务森林，第1部：任务树林中的大火","taskwoodsTerror2":"恐怖的任务森林，第2部：找到丰收精灵","taskwoodsTerror3":"恐怖的任务森林，第3部：杰克南瓜灯","ferret":"恶毒的雪貂","dustbunnies":"野生的灰尘兔子","moon1":"月亮战争，第1部：寻找神秘碎片","moon2":"月亮战争，第2部：驱逐遮天蔽日的压力","moon3":"月亮战争，第3部：巨大的月亮","sloth":"昏昏欲睡的树懒","triceratops":"跺脚的三角龙","stoikalmCalamity1":"Stoïkalm灾难，第1部：地上的敌人","stoikalmCalamity2":"Stoïkalm灾难，第2部：寻找冰柱洞穴","stoikalmCalamity3":"Stoïkalm灾难，第3部：冰柱德雷克地震","guineapig":"豚鼠团伙","peacock":"拖拉孔雀","butterfly":"再见啦，蝴蝶","mayhemMistiflying1":"Misti飞城的混乱，第1部：Misti飞城遇到可怕的麻烦","mayhemMistiflying2":"Misti飞城的混乱，第2部：疾风更盛","mayhemMistiflying3":"Misti飞城的混乱，第3部：粗鲁的邮递员","nudibranch":"NowDo海兔的侵袭","hippo":"好一个伪君子","lostMasterclasser1":"大师鉴别者的秘密，第1部：字里行间","lostMasterclasser2":"大师鉴别者的秘密，第2部：召唤逃避者","lostMasterclasser3":"大师鉴别者的秘密，第3部：黄沙掩埋的城市","lostMasterclasser4":"大师鉴别者的秘密，第4部：迷失的大师鉴别者","yarn":"一条缠绕的毛线","pterodactyl":"翼龙","badger":"快别缠着我了！","dysheartener":"失恋怪","squirrel":"狡猾的松鼠","seaserpent":"深度危险：海蛇冲撞！","kangaroo":"袋鼠大灾变","alligator":"鳄鱼的煽动：此刻更要紧的事","velociraptor":"光速rap迅猛龙","robot":"神奇的机械奇迹！","amber":"琥珀联盟","dolphin":"怀疑海豚","silver":"银溶液","bronze":"大战青铜甲虫","ruby":"红宝石的关系","waffle":"跟愚者胡扯：灾难早餐！","fluorite":"吓人的发光萤石","windup":"失控的发条战士","turquoise":"探寻绿松石宝藏","blackPearl":"星星的奇思妙想","stone":"布满青苔的迷宫","solarSystem":"宇宙集中之旅"};
-const COLLECT_MAP = {"tracks":"爪印","branches":"踩断的树枝","lightCrystal":"神光水晶","moonstone":"月长石","testimony":"证据","plainEgg":"普通的蛋","soapBars":"肥皂","fireCoral":"烈焰珊瑚","blueFins":"湛蓝之鳍","pixie":"小精灵","brownie":"淘气鬼","dryad":"树妖","shard":"月之碎片","icicleCoin":"被冰冻的硬币","mistifly1":"红色Misti蝴蝶","mistifly2":"蓝色Misti蝴蝶","mistifly3":"绿色Misti蝴蝶","ancientTome":"古籍","forbiddenTome":"禁书","hiddenTome":"藏书","spring":"弹簧","bolt":"螺栓","gear":"齿轮","silverIngot":"银锭","cancerRune":"巨蟹座符文","moonRune":"月亮符文","rubyGem":"红宝石","venusRune":"金星符文","aquariusRune":"水瓶座符文","turquoiseGem":"绿松石宝石","neptuneRune":"海王星符文","sagittariusRune":"射手座符文","mossyStone":"青苔石","capricornRune":"摩羯座符文","marsRune":"火星符文"};
+const QUEST_MAP = {"evilsanta":"Trapper Santa","evilsanta2":"Find the Cub","gryphon":"The Fiery Gryphon","hedgehog":"The Hedgebeast","ghost_stag":"The Spirit of Spring","rat":"The Rat King","octopus":"The Call of Octothulu","harpy":"Help! Harpy!","rooster":"Rooster Rampage","spider":"The Icy Arachnid","vice1":"Vice, Part 1: Free Yourself of the Dragon's Influence","vice2":"Vice, Part 2: Find the Lair of the Wyrm","vice3":"Vice, Part 3: Vice Awakens","moonstone1":"Recidivate, Part 1: The Moonstone Chain","moonstone2":"Recidivate, Part 2: Recidivate the Necromancer","moonstone3":"Recidivate, Part 3: Recidivate Transformed","goldenknight1":"The Golden Knight, Part 1: A Stern Talking-To","goldenknight2":"The Golden Knight, Part 2: Gold Knight","goldenknight3":"The Golden Knight, Part 3: The Iron Knight","basilist":"The Basi-List","egg":"Egg Hunt","dilatory":"The Dread Drag'on of Dilatory","dilatory_derby":"The Dilatory Derby","atom1":"Attack of the Mundane, Part 1: Dish Disaster!","atom2":"Attack of the Mundane, Part 2: The SnackLess Monster","atom3":"Attack of the Mundane, Part 3: The Laundromancer","owl":"The Night-Owl","penguin":"The Fowl Frost","stressbeast":"The Abominable Stressbeast of the Stoïkalm Steppes","trex":"King of the Dinosaurs","trex_undead":"The Dinosaur Unearthed","rock":"Escape the Cave Creature","bunny":"The Killer Bunny","slime":"The Jelly Regent","sheep":"The Thunder Ram","kraken":"The Kraken of Inkomplete","whale":"Wail of the Whale","dilatoryDistress1":"Dilatory Distress, Part 1: Message in a Bottle","dilatoryDistress2":"Dilatory Distress, Part 2: Creatures of the Crevasse","dilatoryDistress3":"Dilatory Distress, Part 3: Not a Mere Maid","cheetah":"Such a Cheetah","horse":"Ride the Night-Mare","burnout":"Burnout and the Exhaust Spirits","frog":"Swamp of the Clutter Frog","snake":"The Serpent of Distraction","unicorn":"Convincing the Unicorn Queen","sabretooth":"The Sabre Cat","monkey":"Monstrous Mandrill and the Mischief Monkeys","snail":"The Snail of Drudgery Sludge","bewilder":"The Be-Wilder","falcon":"The Birds of Preycrastination","treeling":"The Tangle Tree","axolotl":"The Magical Axolotl","turtle":"Guide the Turtle","armadillo":"The Indulgent Armadillo","cow":"The Mootant Cow","beetle":"The CRITICAL BUG","taskwoodsTerror1":"Terror in the Taskwoods, Part 1: The Blaze in the Taskwoods","taskwoodsTerror2":"Terror in the Taskwoods, Part 2: Finding the Flourishing Fairies","taskwoodsTerror3":"Terror in the Taskwoods, Part 3: Jacko of the Lantern","ferret":"The Nefarious Ferret","dustbunnies":"The Feral Dust Bunnies","moon1":"Lunar Battle, Part 1: Find the Mysterious Shards","moon2":"Lunar Battle, Part 2: Stop the Overshadowing Stress","moon3":"Lunar Battle, Part 3: The Monstrous Moon","sloth":"The Somnolent Sloth","triceratops":"The Trampling Triceratops","stoikalmCalamity1":"Stoïkalm Calamity, Part 1: Earthen Enemies","stoikalmCalamity2":"Stoïkalm Calamity, Part 2: Seek the Icicle Caverns","stoikalmCalamity3":"Stoïkalm Calamity, Part 3: Icicle Drake Quake","guineapig":"The Guinea Pig Gang","peacock":"The Push-and-Pull Peacock","butterfly":"Bye, Bye, Butterfry","mayhemMistiflying1":"Mayhem in Mistiflying, Part 1: In Which Mistiflying Experiences a Dreadful Bother","mayhemMistiflying2":"Mayhem in Mistiflying, Part 2: In Which the Wind Worsens","mayhemMistiflying3":"Mayhem in Mistiflying, Part 3: In Which a Mailman is Extremely Rude","nudibranch":"Infestation of the NowDo Nudibranchs","hippo":"What a Hippo-Crite","lostMasterclasser1":"The Mystery of the Masterclassers, Part 1: Read Between the Lines","lostMasterclasser2":"The Mystery of the Masterclassers, Part 2: Assembling the a'Voidant","lostMasterclasser3":"The Mystery of the Masterclassers, Part 3: City in the Sands","lostMasterclasser4":"The Mystery of the Masterclassers, Part 4: The Lost Masterclasser","yarn":"A Tangled Yarn","pterodactyl":"The Pterror-dactyl","badger":"Stop Badgering Me!","dysheartener":"The Dysheartener","squirrel":"The Sneaky Squirrel","seaserpent":"Danger in the Depths: Sea Serpent Strike!","kangaroo":"Kangaroo Catastrophe","alligator":"The Insta-Gator","velociraptor":"The Veloci-Rapper","robot":"Brazen Beetle Battle","amber":"The Dolphin of Doubt","dolphin":"The Silver Solution","silver":"Mysterious Mechanical Marvels!","bronze":"The Amber Alliance","ruby":"Ruby Rapport","waffle":"Waffling with the Fool: Disaster Breakfast!","fluorite":"A Bright Fluorite Fright","windup":"A Whirl with a Wind-Up Warrior","turquoise":"Turquoise Treasure Toil","blackPearl":"A Startling Starry Idea","stone":"A Maze of Moss","solarSystem":"A Voyage of Cosmic Concentratio"};
+const COLLECT_MAP = {"tracks":"Tracks","branches":"Broken Twigs","lightCrystal":"Light Crystals","moonstone":"Moonstones","testimony":"Testimonies","plainEgg":"Plain Eggs","soapBars":"Bars of Soap","fireCoral":"Fire Coral","blueFins":"Blue Fins","pixie":"Pixies","brownie":"Brownies","dryad":"Dryads","shard":"Lunar Shards","icicleCoin":"Icicle Coins","mistifly1":"Red Mistiflies","mistifly2":"Blue Mistiflies","mistifly3":"Green Mistiflies","ancientTome":"Ancient Tomes","forbiddenTome":"Forbidden Tomes","hiddenTome":"Hidden Tomes","spring":"Springs","bolt":"Bolts","gear":"Gears","silverIngot":"Silver Ingots","cancerRune":"Cancer Zodiac Runes","moonRune":"Moon Runes","rubyGem":"Ruby Gems","venusRune":"Venus Runes","aquariusRune":"Aquarius Zodiac Runes","turquoiseGem":"Turquoise Gems","neptuneRune":"Neptune Runes","sagittariusRune":"Sagittarius Runes","mossyStone":"Mossy Stones", "capricornRune": "Capricorn Runes","marsRune":"Mars Runes"};
 
 function getErrResponseMsg(err) {
     let msg = null;
     if (err.response) {
         if (err.response.status === 429) {
-            msg = "操作频繁，休息一会";
+            msg = "Frequent operation, take a break";
         } else if (err.response.data) {
             msg = err.response.data.message;
         } else {
             msg = err.response.status;
         }
     } else {
-        msg = "与Habitica通信异常，需检查网络环境";
+        msg = "The communication with Habitica is abnormal, you need to check the network environment";
     }
     return msg;
 }
@@ -128,11 +128,17 @@ function getDateReminder(now, date) {
     }
     let diff = Math.floor((new Date(date).getTime() - now.getTime()) / 1000 / 60 / 60 / 24) + 1;
     if (diff > 0) {
-        return "还剩 " + diff + " 天";
+        if (diff === 1) {
+            return "Due in a day";
+        }
+        return "Due in " + diff + " days";
     } else if (diff < 0) {
-        return "超时 " + Math.abs(diff) + " 天";
+        if (diff === -1) {
+            return "Due a day ago";
+        }
+        return "Due " + Math.abs(diff) + " days ago";
     } else {
-        return "期限为今日";
+        return "Due Today";
     }
 }
 
@@ -202,7 +208,7 @@ function buyHealthPotion(doAfter) {
 
 function sleep(state, doAfter) {
     axios.post(SLEEP_URL, {data:state}, {headers: headers}).then(rsp => {
-        rsp.data.success ? doAfter(true) : doAfter(false, "Habitica服务器异常");
+        rsp.data.success ? doAfter(true) : doAfter(false, "Habitica server exception");
     }).catch(err => {
         console.error("buyHealthPotion error: ", err);
         doAfter(false, getErrResponseMsg(err));
