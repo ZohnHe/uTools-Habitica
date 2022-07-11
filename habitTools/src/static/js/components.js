@@ -448,10 +448,10 @@ new Vue({
             scoreHBTask(task.id, direction, (success, data) => {
                 if (success) {
                     let selectTag = this.selectTag;
+                    task.value += data.delta;
+                    task.color = getColorByValue(task.value);
                     if (menuVal === 1) {
                         direction === 'up' ? task.counterUp++ : task.counterDown++;
-                        task.value += data.delta;
-                        task.color = getColorByValue(task.value);
                         if ((selectTag === 2 && task.value >= 1) || (selectTag === 3 && task.value < 1)) {
                             this.selectTag = 0;
                         }
@@ -474,7 +474,6 @@ new Vue({
                             }
                         }
                         task.completed = after;
-                        task.color = getColorByValue(task.value);
                         this.selectTag = 0;
                     }
                     this.modifyStatus(data.hp, data.lvl, data.exp, data.mp, data.gp);
