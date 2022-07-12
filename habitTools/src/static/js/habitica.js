@@ -1,11 +1,11 @@
 const API_ROOT = "https://habitica.com";
-const USER_INFO_URL = API_ROOT + "/api/v3/user";
-const TASKS_UPDATE_URL = API_ROOT + "/api/v3/tasks/";
+const USER_INFO_URL = API_ROOT + "/api/v4/user";
+const TASKS_UPDATE_URL = API_ROOT + "/api/v4/tasks/";
 const TASKS_URL = TASKS_UPDATE_URL + "user";
-const CRON_URL = API_ROOT + "/api/v3/cron";
+const CRON_URL = API_ROOT + "/api/v4/cron";
 const BULK_SCORE_URL = API_ROOT + "/api/v4/tasks/bulk-score";
 const COMPLETED_TASK_URL = API_ROOT + "/api/v4/tasks/user?type=completedTodos";
-const PARTY_URL = API_ROOT + "/api/v3/groups/";
+const PARTY_URL = API_ROOT + "/api/v4/groups/";
 const CAST_URL = USER_INFO_URL + "/class/cast/";
 const BUY_HEALTH_URL = USER_INFO_URL + "/buy-health-potion";
 const SLEEP_URL = USER_INFO_URL + "/sleep";

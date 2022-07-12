@@ -171,7 +171,12 @@ new Vue({
                     this.refreshData(data, load);
                 } else {
                     load.close();
-                    this.showErrMsg(data);
+                    this.$alert(data, '连接异常', {
+                        confirmButtonText: '重试',
+                        callback: () => {
+                            this.onSynchronousData();
+                        }
+                    });
                 }
             });
         },
@@ -236,6 +241,7 @@ new Vue({
                             id: task.id,
                             text: task.text,
                             notes: task.notes,
+                            value: task.value,
                             color: getColorByValue(task.value),
                             completed: task.completed,
                             isDue: task.isDue,
@@ -447,10 +453,10 @@ new Vue({
             scoreHBTask(task.id, direction, (success, data) => {
                 if (success) {
                     let selectTag = this.selectTag;
+                    task.value += data.delta;
+                    task.color = getColorByValue(task.value);
                     if (menuVal === 1) {
                         direction === 'up' ? task.counterUp++ : task.counterDown++;
-                        task.value += data.delta;
-                        task.color = getColorByValue(task.value);
                         if ((selectTag === 2 && task.value >= 1) || (selectTag === 3 && task.value < 1)) {
                             this.selectTag = 0;
                         }
@@ -473,7 +479,6 @@ new Vue({
                             }
                         }
                         task.completed = after;
-                        task.color = getColorByValue(task.value);
                         this.selectTag = 0;
                     }
                     this.modifyStatus(data.hp, data.lvl, data.exp, data.mp, data.gp);
@@ -934,6 +939,7 @@ new Vue({
                             id: task.id,
                             text: task.text,
                             notes: task.notes,
+                            value: task.value,
                             color: getColorByValue(task.value),
                             completed: task.completed,
                             collapseChecklist: task.collapseChecklist,
