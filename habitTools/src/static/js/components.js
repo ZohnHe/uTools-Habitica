@@ -171,7 +171,12 @@ new Vue({
                     this.refreshData(data, load);
                 } else {
                     load.close();
-                    this.showErrMsg(data);
+                    this.$alert(data, '连接异常', {
+                        confirmButtonText: '重试',
+                        callback: () => {
+                            this.onSynchronousData();
+                        }
+                    });
                 }
             });
         },
